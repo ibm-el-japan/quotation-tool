@@ -40,42 +40,51 @@ It is managed across two GitHub repositories:
 
 | Item | Value |
 |---|---|
-| Release Version | **v1.1.0** |
-| Release Date | 2025-07-11 |
-| File | `quotation-tool.html` (1,899 lines) |
-| Save format version | 3 (includes `kosuTrips`, `kosuNights`) |
+| Release Version | **v1.3.0** |
+| Release Date | 2025-09-01 |
+| File | `quotation-tool.html` (~2400 lines) |
+| Save format version | 4 (includes `prevState` for diff tracking; `kosuTrips`/`kosuNights` removed) |
 
-### Key features in v1.1.0
+### Key features in v1.3.0
 - 6 tabs: 基本情報 / チェックシート / 工数 / 交通費等 / 作成・出力 / バージョン情報
-- 工数シートに移動回数・宿泊数列 → 交通費等タブへ自動連動
+- **🔍 変更履歴ビュー（差分表示）**: ファイルを開いた際に前回保存時との差分をモーダルで自動表示
+  - 基本情報・工数・交通費・チェックシートの各シートごとに追加/削除/変更を色分け表示
+  - `prevState` フィールドを保存データに埋め込み、次回開封時の比較基準として使用
+- **GitHub連携機能**: ブラウザから直接 `work/` フォルダにコミット
+  - 「☁️ GitHubへ保存」: 担当者名・PAT・変更コメントを入力 → GitHub APIで保存
+  - 「📂 GitHubから開く」: `work/` 一覧をAPIで取得し、クリックで読み込み
+  - PAT は `sessionStorage` 保持（ページを閉じると自動削除）
 - 管理者モード（🔑ボタン）: Labor単価・Contingency・GP は管理者のみ編集可
-- バージョン情報タブ: リリース情報・変更履歴・GitHub権限ガイドをツール内に組み込み
-- 保存/読み込み機能（案件データを .html ファイルとして保存・復元）
+  - ※ admin-lock は HTML 要素から削除済み — 起動時コードで旧保存ファイルのクラスも除去
+- 保存/読み込み機能（ローカル保存も引き続き利用可）
 - お客様提出用出力・印刷機能
+
+---
+
+## Key Constants in quotation-tool.html
+
+| Constant/ID | Value | Line (approx) |
+|---|---|---|
+| `APP_VERSION` | `'v1.3.0'` | ~618 |
+| `APP_RELEASE_DATE` | `'2025-09-01'` | ~619 |
+| `ADMIN_PASSWORD` | `'P@ssw0rd!'` | ~621 |
+| `ver-badge` | `v1.3.0` | ~207 |
+| `GH_REPO_OWNER` | `'ibm-el-japan'` | ~713 |
+| `GH_REPO_NAME` | `'quotation-tool'` | ~714 |
+| `GH_WORK_PATH` | `'work'` | ~715 |
 
 ---
 
 ## Repository Structure
 
-### 管理者作業リポジトリ: ibmkevin/playground
-
-```
-playground/
-├── quotation-tool.html          ← 最新版（管理者の作業コピー）
-├── releases/
-│   └── quotation-tool_v1.1.0.html
-├── docs/
-│   └── quotation-tool-skill.md  ← このスキルのGitHubバックアップ
-├── CHANGELOG.md
-└── README.md
-```
-
 ### チーム共有リポジトリ: ibm-el-japan/quotation-tool
 
 ```
 quotation-tool/                  ← https://github.com/ibm-el-japan/quotation-tool
-├── quotation-tool.html          ← チーム向け最新版テンプレート
+├── quotation-tool.html          ← チーム向け最新版テンプレート (v1.3.0)
 ├── releases/
+│   ├── quotation-tool_v1.3.0.html
+│   ├── quotation-tool_v1.2.0.html
 │   └── quotation-tool_v1.1.0.html
 ├── work/                        ← チームの案件作業ファイル置き場
 │   └── README.md
@@ -86,33 +95,30 @@ quotation-tool/                  ← https://github.com/ibm-el-japan/quotation-t
 └── README.md
 [gh-pages branch]
 ├── index.html                   ← チームポータル
-└── quotation-tool.html          ← Pages配信用
+└── quotation-tool.html          ← Pages配信用 (v1.3.0)
 ```
 
 ---
 
 ## GitHub Access & Permissions
 
-### Organization: ibm-el-japan
+### Two GitHub accounts involved
 
-| ロール | 対象 | 操作可能な範囲 |
+| Account | Role | Repos |
 |---|---|---|
-| Owner / Admin | ibmkevin（管理者） | 全設定・メンバー管理・全ファイル変更 |
-| Write | チームメンバー（担当SE等） | ファイル閲覧・ダウンロード・work/へのアップロード |
-| Read | 参照専用メンバー | ファイル閲覧・ダウンロードのみ |
+| `ibmkevin` | IBM user / org owner | `ibmkevin/playground`, `ibm-el-japan` org owner |
+| `kevinshim-space` | Current PAT auth user | Can push to `ibm-el-japan/quotation-tool` ✅ |
 
-### メンバー招待
-https://github.com/orgs/ibm-el-japan/people または
-https://github.com/ibm-el-japan/quotation-tool/settings/access
+### Current PAT
 
-### ツール内の権限モード
+| Key | Value |
+|---|---|
+| PAT in `~/.bob/settings/mcp.json` | `<PAT — see ~/.bob/settings/mcp.json>` |
+| Authenticated as | `kevinshim-space` |
+| Can push to | `ibm-el-japan/quotation-tool` ✅ |
+| Cannot push to | `ibmkevin/playground` ❌ (PAT expired) |
 
-| モード | アクセス方法 | 追加で操作可能な項目 |
-|---|---|---|
-| 一般ユーザー（デフォルト） | 起動時 | お客様名・案件名・工数・チェックシート等 |
-| 管理者モード | ヘッダー右上 🔑 ボタン → パスワード入力 | Labor単価・Contingency・GP |
-
-管理者パスワード: `quotation-tool.html` 内 `ADMIN_PASSWORD` 定数（約537行目）で管理。
+> ⚠️ Do not commit the PAT value. IBM Vault Radar will block the commit.
 
 ---
 
@@ -127,91 +133,76 @@ https://github.com/ibm-el-japan/quotation-tool/settings/access
 ### フロー
 1. https://ibm-el-japan.github.io/quotation-tool/ を開く（ポータル）
 2. 「ツールを開く」ボタンをクリック → ブラウザ上でそのまま動作
-3. 入力 → 💾 保存 → 命名規則でリネーム
-4. `work/` フォルダにアップロード（GitHub上: Add file → Upload files）
-5. `WORK_LOG.md` に変更内容を追記（✏️ Edit → Commit）
-6. 次の担当者が `work/` の最新ファイルを取得して継続
-
-### 変更履歴の確認
-- **WORK_LOG.md**: https://github.com/ibm-el-japan/quotation-tool/blob/main/WORK_LOG.md
-- **Git commit履歴**: https://github.com/ibm-el-japan/quotation-tool/commits/main
-
----
-
-## Environment Setup
-
-### MCP Servers (global — `~/.bob/settings/mcp.json`)
-
-| Server | Purpose |
-|---|---|
-| `pdf-reader` | Reads PDF files via a local Node.js binary |
-| `askibm` | IBM internal Q&A via uvx |
-| `xlsm-reader` | Reads `.xlsm` / `.xlsx` workbooks via a local Node.js binary |
-| `github` | GitHub MCP server (`@modelcontextprotocol/server-github`) |
-
-### PAT 管理
-
-| PAT | 認証ユーザー | 用途 |
-|---|---|---|
-| `ghp_****`（`~/.bob/settings/mcp.json` 参照） | kevinshim-space | `ibm-el-japan/quotation-tool` への書き込み |
-| Classic PAT（旧）| ibmkevin | 失効 — `ibmkevin/playground` への書き込みは現在不可 |
-
-> ⚠️ `ibmkevin/playground` へのプッシュには別途 `repo` スコープを持つ PAT が必要。
+3. 入力 → 「💾 保存 → GitHubへ」ボタンでwork/に直接コミット
+4. 次の担当者が「📂 GitHubから開く」でファイルを選択して継続
+5. ファイル開封時に差分モーダルが自動表示 → 変更点をすぐ確認可能
 
 ---
 
 ## Version Management
 
 ### バージョンアップ手順（管理者）
-```bash
-# 1. quotation-tool.html を編集（APP_VERSION, ver-badge, CHANGELOGタブ内も更新）
 
-# 2. スナップショット作成
-cp quotation-tool.html releases/quotation-tool_vX.Y.Z.html
+1. `quotation-tool.html` を編集
+2. バージョンを更新: `APP_VERSION`, `APP_RELEASE_DATE`, `ver-badge`, バージョン情報タブ内テーブル
+3. スナップショット作成: `cp quotation-tool.html releases/quotation-tool_vX.Y.Z.html`
+4. `CHANGELOG.md` に追記
+5. Python urllib スクリプトで `main` と `gh-pages` の両ブランチに push
 
-# 3. CHANGELOG.md に追記
+### Push パターン（Python urllib）
 
-# 4. ibm-el-japan/quotation-tool へプッシュ（temp-dir パターン）
-PAT="<token>"
-TMPDIR=$(mktemp -d) && cd "$TMPDIR"
-git init && git checkout -b main
-git remote add origin "https://ibm-el-japan:<PAT>@github.com/ibm-el-japan/quotation-tool.git"
-git fetch origin main --quiet && git reset --hard origin/main
-# ファイルをコピー後:
-git add . && git commit -m "release: vX.Y.Z — [変更概要]" && git push origin main
+```python
+import urllib.request, json, base64
 
-# 5. gh-pages ブランチも更新（同じパターンで gh-pages ブランチへ）
+PAT = "<token from ~/.bob/settings/mcp.json>"
+OWNER = "ibm-el-japan"
+REPO = "quotation-tool"
+
+headers = {
+    "Authorization": f"token {PAT}",
+    "Accept": "application/vnd.github.v3+json",
+    "Content-Type": "application/json",
+    "X-GitHub-Api-Version": "2022-11-28",
+}
+
+# Get current SHA first via GET /repos/{owner}/{repo}/contents/{path}?ref={branch}
+# Then PUT with sha, content (base64), message, branch
 ```
 
 ### バージョニングポリシー
 | 種別 | 変化 |
 |---|---|
-| フォーマット変更・機能追加 | マイナー +1 (例: v1.1.0 → v1.2.0) |
-| バグ修正・軽微な修正 | パッチ +1 (例: v1.1.0 → v1.1.1) |
+| フォーマット変更・機能追加 | マイナー +1 (例: v1.2.0 → v1.3.0) |
+| バグ修正・軽微な修正 | パッチ +1 (例: v1.3.0 → v1.3.1) |
 | 大規模再設計 | メジャー +1 (例: v1.x.x → v2.0.0) |
+
+---
+
+## Discoveries / Design Decisions
+
+- **Save format v4**: `prevState` embedded in saved HTML — used by next open to compute diff. `kosuTrips`/`kosuNights` removed.
+- **Diff modal**: `buildDiffHtml(prev, curr)` computes per-sheet diffs; `showDiffModal(prev, curr, fileName)` renders the modal. Called from `loadProject()` and `execGhLoad()`.
+- **admin-lock removed from HTML**: Fields no longer have `admin-lock` class. Startup code strips it from old saved files for backward compatibility.
+- **UTF-8 decode**: `ghGetFileContent` uses `TextDecoder('utf-8')` — fixes Japanese garbling from base64 atob().
+- **raw.githubusercontent.com caches aggressively** — always verify at GitHub Pages URL, not raw URL.
+- **GitHub API 403 from browser**: `kevinshim-space` PAT lacks write from browser context for `work/` — resolved by using the download + manual upload workflow or PAT with correct scope.
 
 ---
 
 ## Known Issues / Follow-up Items
 
-- `ibmkevin/playground` リポジトリへの git push が現在不可（旧PATが失効）。
-  新しい `repo` スコープ付き Classic PAT を生成し以下を実行:
-  ```bash
-  git remote set-url origin "https://ibmkevin:<NEW_PAT>@github.com/ibmkevin/playground.git"
-  git push
-  ```
-
-- 現在の `mcp.json` の PAT は `kevinshim-space` ユーザーとして認証される。
-  `ibm-el-japan/quotation-tool` への書き込みはこの PAT で可能。
+- `ibmkevin/playground` へのプッシュは現在不可（古いPATが失効）。新しい `repo` スコープ付きPATが必要。
+- Portal `index.html` (gh-pages) still shows v1.2.0 badge — update if needed.
+- Customer data in `work/` must not contain real customer info (repo is public).
 
 ---
 
 ## How to Resume Work
 
 1. Open Bob in the playground workspace (`/Users/kevinshim/.bob/playground`).
-2. Activate this skill by typing `/quotation-tool` or asking about the quotation tool.
-3. Read `quotation-tool.html` (currently v1.1.0, 1899 lines).
-4. Push changes to `ibm-el-japan/quotation-tool` using the current PAT (temp-dir pattern).
+2. Activate this skill: `/quotation-tool` or ask about the quotation tool.
+3. Read `quotation-tool.html` for current state.
+4. Push changes using Python urllib script with PAT from `~/.bob/settings/mcp.json`.
 
 ---
 
@@ -222,20 +213,9 @@ Live skill location (Bob reads this):
 ~/.bob/skills/quotation-tool/SKILL.md
 ```
 
-GitHub backup (review/edit here):
-```
-https://github.com/ibm-el-japan/quotation-tool/blob/main/docs/quotation-tool-skill.md
-```
-
-Sync after local edit:
+After editing locally, sync to GitHub:
 ```bash
 cp ~/.bob/skills/quotation-tool/SKILL.md \
    /Users/kevinshim/.bob/playground/docs/quotation-tool-skill.md
-# Push to ibm-el-japan/quotation-tool via temp-dir pattern
-```
-
-Sync after GitHub edit:
-```bash
-# Download updated file from GitHub, then:
-cp quotation-tool-skill.md ~/.bob/skills/quotation-tool/SKILL.md
+# then push docs/quotation-tool-skill.md to ibm-el-japan/quotation-tool via urllib script
 ```
