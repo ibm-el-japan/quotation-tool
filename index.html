@@ -36,18 +36,20 @@ body{font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Meiryo",sans-seri
 .badge{font-size:10px;padding:1px 7px;border-radius:8px;font-weight:700}
 .badge.new{background:#dcfce7;color:#166534}
 .badge.edit{background:#dbeafe;color:#1e40af}
+.badge.gh{background:#1a56a0;color:#fff}
 table{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}
 th{background:#dce6f4;padding:5px 10px;text-align:left;border:1px solid #e5e7eb;color:#1a3a5c;font-weight:700}
 td{padding:5px 10px;border:1px solid #e5e7eb;vertical-align:top}
 td.lbl{font-weight:600;background:#f7f8fa;white-space:nowrap}
 .path{background:#f0f3f7;border:1px solid #d0d7de;border-radius:3px;font-family:monospace;font-size:11px;padding:1px 6px}
+.info-box{background:#eaf1fb;border:1px solid #b0c4de;border-radius:6px;padding:10px 14px;font-size:12px;color:#1a3a5c;line-height:1.7;margin-bottom:10px}
 footer{text-align:center;font-size:11px;color:#57606a;padding:24px;border-top:1px solid #e5e7eb;background:#fff;margin-top:8px}
 </style>
 </head>
 <body>
 <div class="header">
   <h1>📋 見積もり作成ツール</h1>
-  <span class="ver">v1.1.0</span>
+  <span class="ver">v1.2.0</span>
 </div>
 <div class="main">
 
@@ -60,21 +62,36 @@ footer{text-align:center;font-size:11px;color:#57606a;padding:24px;border-top:1p
   </div>
 
   <div class="card">
-    <div class="card-head"><h2>📖 使い方（基本フロー）</h2></div>
+    <div class="card-head"><h2>☁️ GitHub連携での保存・共有フロー（v1.2.0〜）</h2></div>
     <div class="card-body">
+      <div class="info-box">
+        <strong>GitHub Personal Access Token (PAT)</strong> を使ってブラウザから直接 <code>work/</code> フォルダに保存できます。<br>
+        PAT はセッション中のみ保持（ページを閉じると削除）。取得方法: GitHub → Settings → Developer settings → Personal access tokens → <strong>repo</strong> スコープで作成。
+      </div>
       <div class="wf-row">
         <div class="wf-box">① ツールを開く</div><div class="wf-arr">→</div>
         <div class="wf-box">② 情報を入力</div><div class="wf-arr">→</div>
-        <div class="wf-box">③ 💾 保存</div><div class="wf-arr">→</div>
-        <div class="wf-box">④ work/ にアップ</div><div class="wf-arr">→</div>
-        <div class="wf-box">⑤ WORK_LOG 記入</div>
+        <div class="wf-box">③ ☁️ GitHubへ保存</div><div class="wf-arr">→</div>
+        <div class="wf-box">④ 他メンバーが開く</div><div class="wf-arr">→</div>
+        <div class="wf-box">⑤ 編集・再保存</div>
       </div>
       <div class="steps" style="margin-top:14px">
-        <div class="step"><div class="step-n">1</div><div class="step-b"><strong>上の「ツールを開く」ボタンをクリック</strong><br>ブラウザ上でそのまま動作します</div></div>
-        <div class="step"><div class="step-n">2</div><div class="step-b"><strong>各タブに情報を入力する</strong><br>基本情報 → チェックシート → 工数（移動回数・宿泊数含む）→ 交通費等</div></div>
-        <div class="step"><div class="step-n">3</div><div class="step-b"><strong>「💾 保存」ボタンでファイルをダウンロード</strong><br>命名規則に従ってリネーム: <span class="path">案件名_YYYYMMDD_v1_イニシャル.html</span></div></div>
-        <div class="step"><div class="step-n">4</div><div class="step-b"><strong>GitHub の work/ フォルダにアップロード</strong><br><a href="https://github.com/ibm-el-japan/quotation-tool/tree/main/work" style="color:#1a56a0" target="_blank">work/ フォルダを開く</a> → Add file → Upload files → Commit</div></div>
-        <div class="step"><div class="step-n">5</div><div class="step-b"><strong>WORK_LOG.md に変更内容を記入</strong><br><a href="https://github.com/ibm-el-japan/quotation-tool/blob/main/WORK_LOG.md" style="color:#1a56a0" target="_blank">WORK_LOG.md を開く</a> → ✏️ Edit → 変更内容を追記 → Commit</div></div>
+        <div class="step"><div class="step-n">1</div><div class="step-b"><strong>上の「ツールを開く」ボタンをクリック</strong><br>URLのコピーや直接入力は不要です</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-b"><strong>各タブに情報を入力する</strong><br>基本情報 → チェックシート → 工数 → 交通費等</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-b"><strong>「☁️ GitHubへ保存」ボタンをクリック</strong><br>担当者名（イニシャル）・PAT・変更コメントを入力 → 保存。<br>コミットメッセージとして「誰が・何を変更したか」が自動記録されます</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-b"><strong>他のメンバーは「📂 GitHubから開く」ボタンをクリック</strong><br>work/ フォルダのファイル一覧が表示 → クリックで読み込み</div></div>
+        <div class="step"><div class="step-n">5</div><div class="step-b"><strong>編集後、再度「☁️ GitHubへ保存」で上書き保存</strong><br>変更コメントを入力することで何を変更したかが履歴に残ります</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>📖 ローカル保存フロー（PAT不要）</h2></div>
+    <div class="card-body">
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-b"><strong>「💾 ローカル保存」でファイルをダウンロード</strong><br>命名規則に従ってリネーム: <span class="path">案件名_YYYYMMDD_v1_イニシャル.html</span></div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-b"><strong>GitHub の work/ フォルダにアップロード（手動）</strong><br><a href="https://github.com/ibm-el-japan/quotation-tool/tree/main/work" style="color:#1a56a0" target="_blank">work/ フォルダを開く</a> → Add file → Upload files → Commit</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-b"><strong>WORK_LOG.md に変更内容を記入</strong><br><a href="https://github.com/ibm-el-japan/quotation-tool/blob/main/WORK_LOG.md" style="color:#1a56a0" target="_blank">WORK_LOG.md を開く</a> → ✏️ Edit → 変更内容を追記 → Commit</div></div>
       </div>
     </div>
   </div>
@@ -83,10 +100,9 @@ footer{text-align:center;font-size:11px;color:#57606a;padding:24px;border-top:1p
     <div class="card-head"><h2>🔄 他のメンバーのファイルを引き継いで編集する</h2></div>
     <div class="card-body">
       <div class="steps">
-        <div class="step"><div class="step-n">1</div><div class="step-b"><strong>work/ フォルダで最新ファイルを確認する</strong><br><a href="https://github.com/ibm-el-japan/quotation-tool/tree/main/work" style="color:#1a56a0" target="_blank">work/ フォルダを開く</a> → 最新のファイルをクリック</div></div>
-        <div class="step"><div class="step-n">2</div><div class="step-b"><strong>Raw ボタン → ファイルを保存 → ブラウザで開く</strong><br>前回の入力内容がすべて復元された状態で開きます</div></div>
-        <div class="step"><div class="step-n">3</div><div class="step-b"><strong>修正後、「💾 保存」→ バージョン番号を +1 してリネーム</strong><br>例: <span class="path">案件名_20250714_v2_MT.html</span></div></div>
-        <div class="step"><div class="step-n">4</div><div class="step-b"><strong>work/ にアップロード → WORK_LOG.md に変更内容を追記</strong></div></div>
+        <div class="step"><div class="step-n">A</div><div class="step-b"><strong>【GitHub連携】ツール内「📂 GitHubから開く」→ 一覧からファイルを選択</strong><br>PAT が必要。クリックするだけで内容が復元されます</div></div>
+        <div class="step"><div class="step-n">B</div><div class="step-b"><strong>【手動】<a href="https://github.com/ibm-el-japan/quotation-tool/tree/main/work" style="color:#1a56a0" target="_blank">work/ フォルダ</a> → ファイルをクリック → Raw → ブラウザで開く</strong><br>前回の入力内容がすべて復元された状態で開きます</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-b"><strong>修正後、「☁️ GitHubへ保存」または「💾 ローカル保存」→ v番号を +1 してリネーム</strong><br>例: <span class="path">案件名_20250831_v2_MT.html</span></div></div>
       </div>
     </div>
   </div>
@@ -98,7 +114,7 @@ footer{text-align:center;font-size:11px;color:#57606a;padding:24px;border-top:1p
       <table>
         <tr><th>要素</th><th>内容</th><th>例</th></tr>
         <tr><td class="lbl">案件略称</td><td>お客様名や案件の略称</td><td>ABC社</td></tr>
-        <tr><td class="lbl">YYYYMMDD</td><td>そのバージョンを作成した日付</td><td>20250711</td></tr>
+        <tr><td class="lbl">YYYYMMDD</td><td>そのバージョンを作成した日付</td><td>20250831</td></tr>
         <tr><td class="lbl">v[番号]</td><td>修正するたびに +1</td><td>v1, v2, v3</td></tr>
         <tr><td class="lbl">担当者イニシャル</td><td>作成した人のイニシャル</td><td>KS, MT</td></tr>
       </table>
@@ -109,12 +125,12 @@ footer{text-align:center;font-size:11px;color:#57606a;padding:24px;border-top:1p
     <div class="card-head"><h2>📄 変更履歴の確認方法</h2></div>
     <div class="card-body">
       <div class="log-entry">
-        <div class="log-head"><span class="badge new">WORK_LOG</span> 誰が・いつ・何を変更したかの詳細記録</div>
-        <div class="log-body"><a href="https://github.com/ibm-el-japan/quotation-tool/blob/main/WORK_LOG.md" style="color:#1a56a0;font-weight:700" target="_blank">📄 WORK_LOG.md を開く →</a><br>各バージョンの担当者・ベースファイル・変更内容・備考が一覧で確認できます。</div>
+        <div class="log-head"><span class="badge gh">GitHub Commits</span> 誰が・いつ・何を変更したかの自動記録</div>
+        <div class="log-body"><a href="https://github.com/ibm-el-japan/quotation-tool/commits/main" style="color:#1a56a0;font-weight:700" target="_blank">🕒 コミット履歴を開く →</a><br>「☁️ GitHubへ保存」ボタン経由の保存は担当者名・変更コメントが自動的にコミットメッセージに記録されます。</div>
       </div>
       <div class="log-entry">
-        <div class="log-head"><span class="badge edit">Git 履歴</span> ファイルのアップロード・更新の時系列記録</div>
-        <div class="log-body"><a href="https://github.com/ibm-el-japan/quotation-tool/commits/main" style="color:#1a56a0;font-weight:700" target="_blank">🕒 コミット履歴を開く →</a><br>誰がいつどのファイルをアップしたか確認できます。</div>
+        <div class="log-head"><span class="badge new">WORK_LOG</span> 手動での詳細変更記録</div>
+        <div class="log-body"><a href="https://github.com/ibm-el-japan/quotation-tool/blob/main/WORK_LOG.md" style="color:#1a56a0;font-weight:700" target="_blank">📄 WORK_LOG.md を開く →</a><br>手動アップロードの場合はここに変更内容を追記してください。</div>
       </div>
     </div>
   </div>
@@ -129,8 +145,7 @@ footer{text-align:center;font-size:11px;color:#57606a;padding:24px;border-top:1p
             <li>お客様名・案件名の入力</li>
             <li>チェックシート・工数・交通費の入力</li>
             <li>お客様提出用ドキュメントの出力</li>
-            <li>案件ファイルの保存・読み込み</li>
-            <li>work/ へのアップロード・WORK_LOG記入</li>
+            <li>案件ファイルの保存・読み込み（ローカル・GitHub）</li>
           </ul>
         </div>
         <div class="role-card admin">
@@ -153,15 +168,15 @@ footer{text-align:center;font-size:11px;color:#57606a;padding:24px;border-top:1p
       <table>
         <tr><td class="lbl">📋 ツール（最新版）</td><td><a href="quotation-tool.html" style="color:#1a56a0">quotation-tool.html（このページ内で開く）</a></td></tr>
         <tr><td class="lbl">📁 作業ファイル</td><td><a href="https://github.com/ibm-el-japan/quotation-tool/tree/main/work" style="color:#1a56a0" target="_blank">work/ フォルダ（GitHub）</a></td></tr>
-        <tr><td class="lbl">📄 変更履歴</td><td><a href="https://github.com/ibm-el-japan/quotation-tool/blob/main/WORK_LOG.md" style="color:#1a56a0" target="_blank">WORK_LOG.md（GitHub）</a></td></tr>
+        <tr><td class="lbl">📄 手動変更履歴</td><td><a href="https://github.com/ibm-el-japan/quotation-tool/blob/main/WORK_LOG.md" style="color:#1a56a0" target="_blank">WORK_LOG.md（GitHub）</a></td></tr>
         <tr><td class="lbl">📦 バージョン履歴</td><td><a href="https://github.com/ibm-el-japan/quotation-tool/blob/main/CHANGELOG.md" style="color:#1a56a0" target="_blank">CHANGELOG.md（GitHub）</a></td></tr>
-        <tr><td class="lbl">🕒 コミット履歴</td><td><a href="https://github.com/ibm-el-japan/quotation-tool/commits/main" style="color:#1a56a0" target="_blank">Commits（GitHub）</a></td></tr>
+        <tr><td class="lbl">🕒 コミット履歴（自動）</td><td><a href="https://github.com/ibm-el-japan/quotation-tool/commits/main" style="color:#1a56a0" target="_blank">Commits（GitHub）— GitHub保存時に自動記録</a></td></tr>
         <tr><td class="lbl">⚙️ コラボレーター設定</td><td><a href="https://github.com/ibm-el-japan/quotation-tool/settings/access" style="color:#1a56a0" target="_blank">Settings → Collaborators（管理者のみ）</a></td></tr>
       </table>
     </div>
   </div>
 
 </div>
-<footer>見積もり作成ツール v1.1.0 | IBM CostPlanSheet2026 対応 | Made with IBM Bob</footer>
+<footer>見積もり作成ツール v1.2.0 | IBM CostPlanSheet2026 対応 | Made with IBM Bob</footer>
 </body>
 </html>
