@@ -305,10 +305,7 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
       <div class="sb" style="margin-bottom:12px">
         <div class="si"><span class="sl2">総工数 (h)</span><span class="sv" id="kosu-total-h">0</span></div>
         <div class="si"><span class="sl2">参考 Labor コスト</span><span class="sv" id="kosu-total-cost">¥0</span></div>
-        <div class="si"><span class="sl2">移動回数（合計）</span><span class="sv" id="kosu-total-trips">0</span></div>
-        <div class="si"><span class="sl2">宿泊数（合計）</span><span class="sv" id="kosu-total-nights">0</span></div>
       </div>
-      <p class="hint">「移動回数」と「宿泊数」を入力すると、交通費等タブの対応行へ自動的に反映されます。</p>
       <div id="kosu-table-wrap"></div>
     </div>
 
@@ -842,14 +839,12 @@ const KOSU_SECTIONS_DEFAULT = [
   ]}
 ];
 
-// TRAVEL_DEFAULT: cnt は工数シートの移動回数/宿泊数と連動
-// linkedKosuField: 'trips' = 移動回数合計に連動, 'nights' = 宿泊数合計に連動, '' = 手動
 const TRAVEL_DEFAULT = [
-  {id:"tr0", type:"交通費（記入例：大阪）", place:"", unit:"", qty:1, cnt:0, hint:"移動回数は予備として20%程度を見込むこと", linkedKosuField:"trips"},
-  {id:"tr1", type:"宿泊費（記入例：大阪）", place:"", unit:"", qty:1, cnt:0, hint:"", linkedKosuField:"nights"},
-  {id:"tr2", type:"出張手当（記入例：大阪）", place:"", unit:"", qty:1, cnt:0, hint:"宿泊回数は予備として20%程度を見込むこと", linkedKosuField:"nights"},
-  {id:"tr3", type:"記入例：PC借用費", place:"", unit:"", qty:1, cnt:1, hint:"中距離以上の出張時に必ず見積もること", linkedKosuField:""},
-  {id:"tr4", type:"その他", place:"", unit:"", qty:1, cnt:1, hint:"", linkedKosuField:""}
+  {id:"tr0", type:"交通費（記入例：大阪）", place:"", unit:"", qty:1, cnt:0, hint:""},
+  {id:"tr1", type:"宿泊費（記入例：大阪）", place:"", unit:"", qty:1, cnt:0, hint:""},
+  {id:"tr2", type:"出張手当（記入例：大阪）", place:"", unit:"", qty:1, cnt:0, hint:""},
+  {id:"tr3", type:"記入例：PC借用費", place:"", unit:"", qty:1, cnt:1, hint:""},
+  {id:"tr4", type:"その他", place:"", unit:"", qty:1, cnt:1, hint:""}
 ];
 
 // ===================== STATE =====================
@@ -857,9 +852,6 @@ let CHECKLIST_DATA = JSON.parse(JSON.stringify(CHECKLIST_DEFAULT));
 let KOSU_SECTIONS = JSON.parse(JSON.stringify(KOSU_SECTIONS_DEFAULT));
 let travelRows = TRAVEL_DEFAULT.map(r => ({...r}));
 let kosuData = {};
-// kosuTrips[rowId][monthIdx] = 移動回数, kosuNights[rowId][monthIdx] = 宿泊数
-let kosuTrips = {};
-let kosuNights = {};
 let _extraRowCounter = 1000;
 
 // ===================== UTILS =====================
@@ -917,8 +909,6 @@ function initKosuData() {
       if (!kosuData[row.id]) {
         kosuData[row.id] = {label: row.label, hint: row.hint, values: new Array(60).fill(0)};
       }
-      if (!kosuTrips[row.id]) kosuTrips[row.id] = new Array(60).fill(0);
-      if (!kosuNights[row.id]) kosuNights[row.id] = new Array(60).fill(0);
     });
   });
 }
@@ -942,11 +932,9 @@ function renderKosuTable(months) {
   h += '<th style="min-width:160px;resize:horizontal;overflow:hidden">見積もり方針</th>';
   months.forEach((ml, mi) => {
     const mc = (mi % 2 === 0) ? 'kosu-month-odd' : 'kosu-month-even';
-    h += '<th class="' + mc + '" colspan="3" style="text-align:center">' + escHtml(ml.label) + '<br><span style="font-size:10px;font-weight:400">工数(h) / 移動 / 宿泊</span></th>';
+    h += '<th class="' + mc + '" style="text-align:center">' + escHtml(ml.label) + '</th>';
   });
   h += '<th style="background:#d6eaf8;color:#0c4a6e">合計(h)</th>';
-  h += '<th style="background:#e8f7ef;color:#065f46;min-width:50px">移動計</th>';
-  h += '<th style="background:#fef9e7;color:#78350f;min-width:50px">宿泊計</th>';
   h += '<th class="np"></th>';
   h += '</tr></thead><tbody>';
 
@@ -959,18 +947,14 @@ function renderKosuTable(months) {
     h += '</td>';
     for (let mi = 0; mi < n; mi++) {
       const mc = (mi % 2 === 0) ? 'kosu-month-odd' : 'kosu-month-even';
-      h += '<td class="tc ' + mc + '" id="sec-month-' + sec.id + '-' + mi + '" colspan="3">0</td>';
+      h += '<td class="tc ' + mc + '" id="sec-month-' + sec.id + '-' + mi + '">0</td>';
     }
     h += '<td class="tc" id="sec-total-' + sec.id + '">0</td>';
-    h += '<td class="tc" style="background:#e8f7ef;color:#065f46" id="sec-trips-' + sec.id + '">0</td>';
-    h += '<td class="tc" style="background:#fef9e7;color:#78350f" id="sec-nights-' + sec.id + '">0</td>';
     h += '<td class="np"></td>';
     h += '</tr>';
 
     sec.rows.forEach(row => {
       const d = kosuData[row.id] || {label: row.label, hint: row.hint, values: new Array(60).fill(0)};
-      const trips = kosuTrips[row.id] || new Array(60).fill(0);
-      const nights = kosuNights[row.id] || new Array(60).fill(0);
       h += '<tr>';
       h += '<td style="position:sticky;left:0;z-index:1;background:#fff;text-align:left;padding:3px 5px">';
       h += '<input type="text" class="w" value="' + escHtml(d.label) + '" onchange="kosuData[\'' + row.id + '\'].label=this.value">';
@@ -978,16 +962,10 @@ function renderKosuTable(months) {
       h += '<td style="text-align:left;padding:3px 5px"><input type="text" class="w" style="min-width:150px" value="' + escHtml(d.hint) + '" onchange="kosuData[\'' + row.id + '\'].hint=this.value"></td>';
       for (let mi = 0; mi < n; mi++) {
         const v = d.values[mi] || 0;
-        const tr = trips[mi] || 0;
-        const ni = nights[mi] || 0;
         const mc = (mi % 2 === 0) ? 'kosu-month-odd' : 'kosu-month-even';
         h += '<td class="' + mc + '" style="padding:2px 3px"><input type="number" step="0.5" min="0" value="' + v + '" style="min-width:44px" oninput="onKosuInput(\'' + row.id + '\',' + mi + ',this.value)"></td>';
-        h += '<td class="' + mc + '" style="padding:2px 3px;background:rgba(16,185,129,.08)"><input type="number" step="1" min="0" value="' + tr + '" style="min-width:38px;background:transparent" title="移動回数" oninput="onKosuTripsInput(\'' + row.id + '\',' + mi + ',this.value)"></td>';
-        h += '<td class="' + mc + '" style="padding:2px 3px;background:rgba(245,158,11,.08)"><input type="number" step="1" min="0" value="' + ni + '" style="min-width:38px;background:transparent" title="宿泊数" oninput="onKosuNightsInput(\'' + row.id + '\',' + mi + ',this.value)"></td>';
       }
       h += '<td class="st" id="row-total-' + row.id + '">0</td>';
-      h += '<td style="background:#e8f7ef;color:#065f46;font-weight:700" id="row-trips-' + row.id + '">0</td>';
-      h += '<td style="background:#fef9e7;color:#78350f;font-weight:700" id="row-nights-' + row.id + '">0</td>';
       h += '<td class="np"><button class="btn bp bsm np" style="margin-right:2px" onclick="addKosuRowAfter(\'' + row.id + '\',\'' + sec.id + '\')">＋</button><button class="btn bd bsm np" onclick="deleteKosuRow(\'' + row.id + '\',\'' + sec.id + '\')">✕</button></td>';
       h += '</tr>';
     });
@@ -997,11 +975,9 @@ function renderKosuTable(months) {
   h += '<td colspan="2" style="text-align:right;font-weight:700;background:#cfe2f3;color:#0c3566">合計</td>';
   for (let mi = 0; mi < n; mi++) {
     const mc = (mi % 2 === 0) ? 'kosu-month-odd' : 'kosu-month-even';
-    h += '<td class="gt ' + mc + '" id="grand-month-' + mi + '" colspan="3">0</td>';
+    h += '<td class="gt ' + mc + '" id="grand-month-' + mi + '">0</td>';
   }
   h += '<td class="gt" id="grand-total-h">0</td>';
-  h += '<td style="background:#c6f6d5;font-weight:700;color:#065f46" id="grand-total-trips">0</td>';
-  h += '<td style="background:#fef3c7;font-weight:700;color:#78350f" id="grand-total-nights">0</td>';
   h += '<td class="np"></td>';
   h += '</tr>';
 
@@ -1015,22 +991,6 @@ function sumRow(rid, n) {
   if (!d) return 0;
   let s = 0;
   for (let i = 0; i < n; i++) s += (parseFloat(d.values[i]) || 0);
-  return s;
-}
-
-function sumTripsRow(rid, n) {
-  const d = kosuTrips[rid];
-  if (!d) return 0;
-  let s = 0;
-  for (let i = 0; i < n; i++) s += (parseFloat(d[i]) || 0);
-  return s;
-}
-
-function sumNightsRow(rid, n) {
-  const d = kosuNights[rid];
-  if (!d) return 0;
-  let s = 0;
-  for (let i = 0; i < n; i++) s += (parseFloat(d[i]) || 0);
   return s;
 }
 
@@ -1049,33 +1009,17 @@ function getGrandMonthTotal(n, mIdx) {
 function recalcKosu(n) {
   if (!n) n = getMonthLabels().length;
   let grandH = 0;
-  let grandTrips = 0;
-  let grandNights = 0;
 
   KOSU_SECTIONS.forEach(sec => {
     let secTotal = 0;
-    let secTrips = 0;
-    let secNights = 0;
     sec.rows.forEach(row => {
       const rTotal = sumRow(row.id, n);
-      const rTrips = sumTripsRow(row.id, n);
-      const rNights = sumNightsRow(row.id, n);
       const el = document.getElementById('row-total-' + row.id);
       if (el) el.textContent = rTotal % 1 === 0 ? rTotal : rTotal.toFixed(1);
-      const te = document.getElementById('row-trips-' + row.id);
-      if (te) te.textContent = rTrips;
-      const ne = document.getElementById('row-nights-' + row.id);
-      if (ne) ne.textContent = rNights;
       secTotal += rTotal;
-      secTrips += rTrips;
-      secNights += rNights;
     });
     const stEl = document.getElementById('sec-total-' + sec.id);
     if (stEl) stEl.textContent = secTotal % 1 === 0 ? secTotal : secTotal.toFixed(1);
-    const stTr = document.getElementById('sec-trips-' + sec.id);
-    if (stTr) stTr.textContent = secTrips;
-    const stNi = document.getElementById('sec-nights-' + sec.id);
-    if (stNi) stNi.textContent = secNights;
     for (let mi = 0; mi < n; mi++) {
       const smEl = document.getElementById('sec-month-' + sec.id + '-' + mi);
       if (smEl) {
@@ -1084,8 +1028,6 @@ function recalcKosu(n) {
       }
     }
     grandH += secTotal;
-    grandTrips += secTrips;
-    grandNights += secNights;
   });
 
   for (let mi = 0; mi < n; mi++) {
@@ -1097,10 +1039,6 @@ function recalcKosu(n) {
   }
   const gtEl = document.getElementById('grand-total-h');
   if (gtEl) gtEl.textContent = grandH % 1 === 0 ? grandH : grandH.toFixed(1);
-  const gtTrips = document.getElementById('grand-total-trips');
-  if (gtTrips) gtTrips.textContent = grandTrips;
-  const gtNights = document.getElementById('grand-total-nights');
-  if (gtNights) gtNights.textContent = grandNights;
 
   // summary bar
   const khEl = document.getElementById('kosu-total-h');
@@ -1108,52 +1046,13 @@ function recalcKosu(n) {
   const rate = parseFloat(document.getElementById('labor-rate').value) || 0;
   const kcEl = document.getElementById('kosu-total-cost');
   if (kcEl) kcEl.textContent = '¥' + fmt(Math.round(grandH * rate));
-  const ktEl = document.getElementById('kosu-total-trips');
-  if (ktEl) ktEl.textContent = grandTrips;
-  const knEl = document.getElementById('kosu-total-nights');
-  if (knEl) knEl.textContent = grandNights;
-
-  // ── 工数 → 交通費 連動 ──
-  syncTravelFromKosu(grandTrips, grandNights);
 
   return grandH;
-}
-
-// 工数シートの移動回数・宿泊数を交通費タブの対応行（linkedKosuField）へ反映
-function syncTravelFromKosu(totalTrips, totalNights) {
-  travelRows.forEach(r => {
-    if (r.linkedKosuField === 'trips') {
-      r.cnt = totalTrips;
-      const el = document.querySelector('#trow-' + r.id + ' td:nth-child(5) input');
-      if (el) el.value = totalTrips;
-    } else if (r.linkedKosuField === 'nights') {
-      r.cnt = totalNights;
-      const el = document.querySelector('#trow-' + r.id + ' td:nth-child(5) input');
-      if (el) el.value = totalNights;
-    }
-  });
-  recalcTravel();
 }
 
 function onKosuInput(rid, idx, val) {
   if (!kosuData[rid]) kosuData[rid] = {label:'', hint:'', values: new Array(60).fill(0)};
   kosuData[rid].values[idx] = parseFloat(val) || 0;
-  const n = getMonthLabels().length;
-  recalcKosu(n);
-  recalcAll();
-}
-
-function onKosuTripsInput(rid, idx, val) {
-  if (!kosuTrips[rid]) kosuTrips[rid] = new Array(60).fill(0);
-  kosuTrips[rid][idx] = parseFloat(val) || 0;
-  const n = getMonthLabels().length;
-  recalcKosu(n);
-  recalcAll();
-}
-
-function onKosuNightsInput(rid, idx, val) {
-  if (!kosuNights[rid]) kosuNights[rid] = new Array(60).fill(0);
-  kosuNights[rid][idx] = parseFloat(val) || 0;
   const n = getMonthLabels().length;
   recalcKosu(n);
   recalcAll();
@@ -1165,8 +1064,6 @@ function addKosuRow(secId) {
   const newId = 'extra_' + secId + '_' + (_extraRowCounter++);
   sec.rows.push({id: newId, label:'（新規）', hint:''});
   kosuData[newId] = {label:'（新規）', hint:'', values: new Array(60).fill(0)};
-  kosuTrips[newId] = new Array(60).fill(0);
-  kosuNights[newId] = new Array(60).fill(0);
   rebuildKosuMonths();
 }
 
@@ -1181,8 +1078,6 @@ function addKosuRowAfter(afterRowId, secId) {
     sec.rows.splice(idx + 1, 0, {id: newId, label:'（新規）', hint:''});
   }
   kosuData[newId] = {label:'（新規）', hint:'', values: new Array(60).fill(0)};
-  kosuTrips[newId] = new Array(60).fill(0);
-  kosuNights[newId] = new Array(60).fill(0);
   rebuildKosuMonths();
 }
 
@@ -1190,8 +1085,6 @@ function deleteKosuRow(rid, secId) {
   const sec = KOSU_SECTIONS.find(s => s.id === secId);
   if (sec) sec.rows = sec.rows.filter(r => r.id !== rid);
   delete kosuData[rid];
-  delete kosuTrips[rid];
-  delete kosuNights[rid];
   rebuildKosuMonths();
 }
 
@@ -1200,8 +1093,6 @@ function deleteKosuSection(secId) {
   if (sec) {
     sec.rows.forEach(row => {
       delete kosuData[row.id];
-      delete kosuTrips[row.id];
-      delete kosuNights[row.id];
     });
   }
   KOSU_SECTIONS = KOSU_SECTIONS.filter(s => s.id !== secId);
@@ -1280,18 +1171,12 @@ function buildTravelTable() {
 }
 
 function travelRowHtml(r) {
-  const linkedBadge = r.linkedKosuField === 'trips'
-    ? ' <span style="font-size:9px;background:#d1fae5;color:#065f46;border-radius:4px;padding:1px 4px;margin-left:2px">→移動</span>'
-    : r.linkedKosuField === 'nights'
-    ? ' <span style="font-size:9px;background:#fef3c7;color:#78350f;border-radius:4px;padding:1px 4px;margin-left:2px">→宿泊</span>'
-    : '';
-  const cntDisabled = r.linkedKosuField ? ' readonly style="background:#f0fdf4;border-color:#6ee7b7;min-width:55px;text-align:right"' : '';
   return '<tr id="trow-' + r.id + '">' +
-    '<td><input type="text" class="w" value="' + escHtml(r.type) + '" oninput="updateTravel(\'' + r.id + '\',\'type\',this.value)">' + linkedBadge + '</td>' +
+    '<td><input type="text" class="w" value="' + escHtml(r.type) + '" oninput="updateTravel(\'' + r.id + '\',\'type\',this.value)"></td>' +
     '<td><input type="text" style="min-width:70px" value="' + escHtml(r.place) + '" oninput="updateTravel(\'' + r.id + '\',\'place\',this.value)"></td>' +
     '<td><input type="number" min="0" value="' + escHtml(r.unit) + '" oninput="updateTravel(\'' + r.id + '\',\'unit\',this.value)"></td>' +
     '<td><input type="number" min="1" value="' + escHtml(r.qty) + '" oninput="updateTravel(\'' + r.id + '\',\'qty\',this.value)"></td>' +
-    '<td><input type="number" min="0" value="' + escHtml(r.cnt) + '"' + cntDisabled + ' oninput="updateTravel(\'' + r.id + '\',\'cnt\',this.value)"></td>' +
+    '<td><input type="number" min="0" value="' + escHtml(r.cnt) + '" oninput="updateTravel(\'' + r.id + '\',\'cnt\',this.value)"></td>' +
     '<td id="travel-total-' + r.id + '" style="font-weight:700">¥0</td>' +
     '<td><input type="text" class="w" value="' + escHtml(r.hint) + '" oninput="updateTravel(\'' + r.id + '\',\'hint\',this.value)"></td>' +
     '<td class="np"><button class="btn bd bsm np" onclick="deleteTravelRow(\'' + r.id + '\')">✕</button></td>' +
@@ -1321,7 +1206,7 @@ function recalcTravel() {
 
 function addTravelRow() {
   const newId = 'tr' + (_travelCounter++);
-  const r = {id: newId, type:'', place:'', unit:'', qty:1, cnt:1, hint:'', linkedKosuField:''};
+  const r = {id: newId, type:'', place:'', unit:'', qty:1, cnt:1, hint:''};
   travelRows.push(r);
   const tbody = document.getElementById('travel-tbody');
   tbody.innerHTML = travelRows.map(x => travelRowHtml(x)).join('');
@@ -2143,13 +2028,9 @@ function collectState() {
   Object.keys(kosuData).forEach(k => {
     kosuSnapshot[k] = {label: kosuData[k].label, hint: kosuData[k].hint, values: kosuData[k].values.slice()};
   });
-  const tripsSnapshot = {};
-  Object.keys(kosuTrips).forEach(k => { tripsSnapshot[k] = kosuTrips[k].slice(); });
-  const nightsSnapshot = {};
-  Object.keys(kosuNights).forEach(k => { nightsSnapshot[k] = kosuNights[k].slice(); });
 
   return {
-    version: 3,
+    version: 4,
     appVersion: APP_VERSION,
     basic: {
       customerName: document.getElementById('customer-name').value,
@@ -2165,8 +2046,6 @@ function collectState() {
     },
     checklist: JSON.parse(JSON.stringify(CHECKLIST_DATA)),
     kosuData: kosuSnapshot,
-    kosuTrips: tripsSnapshot,
-    kosuNights: nightsSnapshot,
     kosuSections: JSON.parse(JSON.stringify(KOSU_SECTIONS)),
     travelRows: JSON.parse(JSON.stringify(travelRows))
   };
@@ -2235,18 +2114,6 @@ function restoreState(state) {
     Object.keys(state.kosuData).forEach(k => {
       const d = state.kosuData[k];
       kosuData[k] = {label: d.label, hint: d.hint, values: (d.values || []).concat(new Array(60).fill(0)).slice(0, 60)};
-    });
-  }
-  if (state.kosuTrips) {
-    kosuTrips = {};
-    Object.keys(state.kosuTrips).forEach(k => {
-      kosuTrips[k] = (state.kosuTrips[k] || []).concat(new Array(60).fill(0)).slice(0, 60);
-    });
-  }
-  if (state.kosuNights) {
-    kosuNights = {};
-    Object.keys(state.kosuNights).forEach(k => {
-      kosuNights[k] = (state.kosuNights[k] || []).concat(new Array(60).fill(0)).slice(0, 60);
     });
   }
   if (state.travelRows) travelRows = JSON.parse(JSON.stringify(state.travelRows));
