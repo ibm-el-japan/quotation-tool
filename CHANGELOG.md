@@ -7,6 +7,26 @@ All notable changes to `quotation-tool.html` are documented here.
 
 ---
 
+## [v1.3.0] — 2025-09-01
+
+### 機能追加 (Added)
+- **🔍 変更履歴ビュー（差分表示）** を追加
+  - ファイルを開いた際に、前回保存時との差分を自動的にモーダルで表示
+  - 基本情報・工数・交通費・チェックシートの各シートごとに追加/削除/変更を色分け表示
+  - `prevState` フィールドを保存データに埋め込み、次回開封時の比較基準として使用
+
+### 変更 (Changed)
+- **管理者ロック機能を削除**: 全フィールドを全ユーザーが直接編集可能に変更（管理者モード自体は残存）
+- **工数シートの移動・宿泊列を削除**: 不要な列（kosuTrips / kosuNights）を完全撤去
+
+### 修正 (Fixed)
+- **文字化け修正**: GitHub からのファイル読み込み時に `TextDecoder('utf-8')` を使用し、日本語が正しくデコードされるよう修正
+
+### 変更者
+- ibmkevin
+
+---
+
 ## [v1.2.0] — 2025-08-31
 
 ### 機能追加 (Added)
@@ -56,6 +76,7 @@ All notable changes to `quotation-tool.html` are documented here.
 
 | Version | ファイル | リリース日 |
 |---|---|---|
+| v1.3.0 | `releases/quotation-tool_v1.3.0.html` | 2025-09-01 |
 | v1.2.0 | `releases/quotation-tool_v1.2.0.html` | 2025-08-31 |
 | v1.1.0 | `releases/quotation-tool_v1.1.0.html` | 2025-07-11 |
 | v1.0.0 | *(初版 — GitHub コミット履歴参照)* | 2025-07-01 |
