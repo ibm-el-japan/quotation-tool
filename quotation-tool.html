@@ -184,11 +184,12 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
     <h1>📋 見積もり作成ツール</h1>
     <span class="ver" id="ver-badge">v1.2.0</span>
     <div class="header-btns">
+      <button class="btn bg" style="background:#059669" onclick="saveAndUpload()">💾 保存 → GitHubへ</button>
+      <button class="btn bp" style="background:#6366f1" onclick="openGhLoadModal()">📂 GitHubから開く</button>
       <button class="btn bv" onclick="saveProject()">💾 ローカル保存</button>
       <button class="btn bp" onclick="document.getElementById('load-file').click()">📂 ローカルから開く</button>
       <input type="file" id="load-file" accept=".html" style="display:none" onchange="loadProject(this)">
-      <button class="btn bg" style="background:#059669" onclick="openGhSaveModal()">☁️ GitHubへ保存</button>
-      <button class="btn bp" style="background:#6366f1" onclick="openGhLoadModal()">📂 GitHubから開く</button>
+      <button class="btn bg" id="gh-api-save-btn" style="display:none" onclick="openGhSaveModal()" title="管理者: GitHub API保存">☁️ API保存</button>
       <button class="btn bg" onclick="window.print()">🖨️ 印刷/PDF</button>
       <button class="btn bs bsm" id="admin-login-btn" onclick="promptAdminLogin()" title="管理者ログイン">🔑</button>
     </div>
@@ -601,6 +602,7 @@ function promptAdminLogin() {
       el.classList.remove('admin-lock');
       el.dataset.adminLocked = '1';
     });
+    document.getElementById('gh-api-save-btn').style.display = '';
     showToast('管理者モードでログインしました');
   } else if (pw !== null) {
     showToast('パスワードが違います');
@@ -616,6 +618,7 @@ function lockAdmin() {
     el.classList.add('admin-lock');
     el.removeAttribute('data-admin-locked');
   });
+  document.getElementById('gh-api-save-btn').style.display = 'none';
   showToast('管理者モードからログアウトしました');
 }
 
@@ -2061,6 +2064,72 @@ async function execGhLoad(filePath, fileName) {
     showToast('読み込みエラー: ' + e.message);
     document.getElementById('gh-file-list').innerHTML = `<div class="gh-spinner" style="color:#dc2626">エラー: ${escHtml(e.message)}</div>`;
   }
+}
+
+// ===================== SAVE & UPLOAD (PAT不要フロー) =====================
+const GH_UPLOAD_URL = 'https://github.com/ibm-el-japan/quotation-tool/upload/main/work';
+const GH_WORKLOG_URL = 'https://github.com/ibm-el-japan/quotation-tool/edit/main/WORK_LOG.md';
+
+function saveAndUpload() {
+  const proj = document.getElementById('project-name').value.trim() || '見積もり';
+  const today = new Date();
+  const ymd = today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+  const fileName = proj.replace(/[\\/:*?"<>|]/g,'_') + '_' + ymd + '_v1.html';
+
+  // ローカルにダウンロード
+  const state = collectState();
+  const json = JSON.stringify(state);
+  let src = document.documentElement.outerHTML;
+  src = src.replace(/<script id="saved-state"[\s\S]*?<\/script>/g, '');
+  const inject = '<script id="saved-state">window.__SAVED_STATE__=' + json + ';<\/script>';
+  src = src.replace('</head>', inject + '</head>');
+  const blob = new Blob(['<!DOCTYPE html>\n' + src], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+
+  // アップロード案内モーダルを表示
+  _showUploadGuideModal(fileName);
+}
+
+function _showUploadGuideModal(fileName) {
+  document.getElementById('gh-modal-title').textContent = '💾 保存完了 — GitHubへアップロード';
+  document.getElementById('gh-modal-body').innerHTML = `
+    <div style="background:#dcfce7;border:1px solid #86efac;border-radius:6px;padding:10px 14px;font-size:12px;color:#166534;margin-bottom:14px">
+      ✅ <strong>${escHtml(fileName)}</strong> をダウンロードしました
+    </div>
+    <p style="font-size:13px;font-weight:700;color:#1a3a5c;margin-bottom:12px">次のステップ（2ステップで完了）</p>
+
+    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:16px">
+      <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:#1a56a0;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">1</div>
+      <div style="flex:1;font-size:13px">
+        <strong style="color:#1a3a5c">GitHubの work/ フォルダにアップロード</strong><br>
+        <span style="font-size:12px;color:#374151">下のボタンをクリックするとアップロードページが開きます。<br>ダウンロードした <code style="background:#f0f3f7;padding:1px 5px;border-radius:3px;font-size:11px">${escHtml(fileName)}</code> をドラッグ&ドロップしてコミットしてください。</span><br>
+        <a href="${GH_UPLOAD_URL}" target="_blank"
+           style="display:inline-block;margin-top:8px;background:#1a56a0;color:#fff;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none">
+          📁 work/ フォルダを開く →
+        </a>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:flex-start">
+      <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:#6b7280;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">2</div>
+      <div style="flex:1;font-size:13px">
+        <strong style="color:#1a3a5c">WORK_LOG.md に変更内容を記入（任意）</strong><br>
+        <span style="font-size:12px;color:#374151">誰が・いつ・何を変更したかをチームで共有するための記録です。</span><br>
+        <a href="${GH_WORKLOG_URL}" target="_blank"
+           style="display:inline-block;margin-top:8px;background:#6b7280;color:#fff;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none">
+          📝 WORK_LOG.md を編集 →
+        </a>
+      </div>
+    </div>
+  `;
+  document.getElementById('gh-modal-footer').innerHTML = `
+    <button class="btn bs" onclick="closeGhModal()">閉じる</button>
+  `;
+  document.getElementById('gh-modal-overlay').classList.add('open');
 }
 
 // ===================== SAVE / LOAD =====================
