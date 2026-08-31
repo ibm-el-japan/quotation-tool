@@ -2265,6 +2265,11 @@ window.addEventListener('DOMContentLoaded', () => {
   buildTravelTable();
   recalcAll();
 
+  // 古い保存ファイルに admin-lock が残っていても強制解除する
+  document.querySelectorAll('.admin-lock').forEach(el => {
+    el.classList.remove('admin-lock');
+  });
+
   const clBackTop = document.getElementById('cl-back-top');
   window.addEventListener('scroll', () => {
     const clTab = document.getElementById('tab-checklist');
