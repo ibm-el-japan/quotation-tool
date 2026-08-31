@@ -1888,7 +1888,12 @@ async function ghListWorkFiles() {
 // ── ファイル内容取得（Base64デコード） ──
 async function ghGetFileContent(filePath) {
   const data = await ghFetch(`/repos/${GH_REPO_OWNER}/${GH_REPO_NAME}/contents/${filePath}`);
-  return { content: atob(data.content.replace(/\n/g, '')), sha: data.sha };
+  // Base64 → Uint8Array → UTF-8 文字列（日本語文字化け防止）
+  const binary = atob(data.content.replace(/\n/g, ''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const content = new TextDecoder('utf-8').decode(bytes);
+  return { content, sha: data.sha };
 }
 
 // ── ファイルをコミット（作成または上書き） ──
