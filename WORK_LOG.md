@@ -1,5 +1,7 @@
 # 作業ログ (Work Log) — 見積もり作成ツール
 
+**Repository:** https://github.com/ibm-el-japan/quotation-tool
+
 チームメンバーが `work/` フォルダのファイルを編集するたびに、このファイルに変更内容を追記してください。
 
 ---

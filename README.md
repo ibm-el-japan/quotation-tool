@@ -1,9 +1,19 @@
 # 見積もり作成ツール (Quotation Tool)
 
-**Current Release: v1.1.0** — `releases/quotation-tool_v1.1.0.html`
+**Current Release: v1.1.0** | **Organization: ibm-el-japan**
 
 ブラウザ上で動作するスタンドアロンの概算見積もり作成ツールです。  
-インストール不要。HTML ファイルをブラウザで開くだけで使用できます。
+インストール不要。下記のポータルリンクからクリックするだけで使用できます。
+
+---
+
+## 🚀 ワンクリックアクセス
+
+| 項目 | URL |
+|---|---|
+| **チームポータル（ここから開始）** | https://ibm-el-japan.github.io/quotation-tool/ |
+| **ツール直接リンク** | https://ibm-el-japan.github.io/quotation-tool/quotation-tool.html |
+| **GitHub リポジトリ** | https://github.com/ibm-el-japan/quotation-tool |
 
 ---
 
@@ -14,37 +24,90 @@ quotation-tool/
 ├── quotation-tool.html              ← 最新版フォーマット（常にここが正式版）
 ├── releases/
 │   └── quotation-tool_v1.1.0.html  ← バージョン付きスナップショット
+├── work/                            ← チームの案件作業ファイル置き場
+│   └── README.md                    ← 命名規則・フロー説明
+├── docs/
+│   └── quotation-tool-skill.md     ← Bob スキル / プロジェクトコンテキスト
+├── WORK_LOG.md                      ← チーム変更履歴ログ
 ├── CHANGELOG.md                     ← バージョン変更履歴
 └── README.md                        ← このファイル
+[gh-pages branch]
+├── index.html                       ← チームポータルページ
+└── quotation-tool.html              ← Pages配信用ツール本体
 ```
 
 ---
 
-## チームメンバー向け — ツールの入手・使用方法
+## チームメンバー向け — 使い方
 
-### ▶ ブラウザで直接開く（推奨）
+### ▶ ワンクリックで開く（推奨）
 
-1. このページの `quotation-tool.html` をクリック
-2. 右上の **Raw** ボタンをクリック
-3. `⌘S`（Mac）または `Ctrl+S`（Windows）でファイルを保存
-4. 保存したファイルをブラウザにドラッグ＆ドロップして開く
+👉 **https://ibm-el-japan.github.io/quotation-tool/**
+
+ポータルページの「📋 見積もり作成ツールを開く」ボタンをクリックするだけです。
 
 ### ▶ 案件ファイルの保存・再開
 
 - 入力後は **💾 保存** ボタンで案件データを `.html` ファイルとしてダウンロード
 - 次回は **📂 読み込み** で案件ファイルを選択して再開
+- 作業ファイルは `work/` フォルダにアップロードして共有
 
-> ⚠️ 案件ファイル（お客様情報を含む）は手元で管理してください。このリポジトリには上げないでください。
+> ⚠️ お客様情報を含む案件ファイルは手元で管理してください。機密情報はリポジトリにアップロードしないでください。
 
 ---
 
-## アクセス権限
+## GitHub アクセス権限 (Organization: ibm-el-japan)
 
 | ロール | 対象 | 操作可能な範囲 |
 |---|---|---|
-| **Admin** | フォーマット管理者 | 全設定・ファイル変更・コラボレーター管理 |
-| **Write** | チームメンバー | ファイルの閲覧・ダウンロード |
-| **Read** | 参照専用メンバー | ファイルの閲覧・ダウンロード |
+| **Owner / Admin** | フォーマット管理者 | 全設定・メンバー管理・全ファイル変更 |
+| **Write** | チームメンバー（担当SE等） | ファイル閲覧・ダウンロード・work/へのアップロード |
+| **Read** | 参照専用メンバー | ファイル閲覧・ダウンロードのみ |
+
+### メンバー招待手順（Admin のみ）
+
+1. https://github.com/ibm-el-japan/quotation-tool/settings/access を開く
+2. **Add people** をクリック → GitHub ユーザー名 or メールを入力
+3. ロールを選択 → **Add to repository** → 招待メール送信
+
+---
+
+## ツール内の権限モード
+
+| モード | 操作可能な項目 | 制限される項目 |
+|---|---|---|
+| **一般ユーザー**（デフォルト） | お客様名・案件名・工数・交通費・出力 | Labor単価・Contingency・GP |
+| **管理者モード**（🔑ボタン） | 全項目（Labor単価・Contingency・GP含む） | なし |
+
+---
+
+## チーム共同作業フロー（work/ フォルダ）
+
+### ファイル命名規則
+```
+[案件略称]_[YYYYMMDD]_v[番号]_[担当者イニシャル].html
+例: ABC社_20250711_v1_KS.html
+```
+
+### フロー
+1. ポータル https://ibm-el-japan.github.io/quotation-tool/ を開く
+2. ツールを開いて入力 → **💾 保存** → 命名規則でリネーム
+3. [work/ フォルダ](https://github.com/ibm-el-japan/quotation-tool/tree/main/work) に Add file → Upload files → Commit
+4. [WORK_LOG.md](https://github.com/ibm-el-japan/quotation-tool/blob/main/WORK_LOG.md) に変更内容を追記
+5. 次の担当者が `work/` の最新ファイルを取得して継続
+
+---
+
+## フォーマット更新フロー（管理者向け）
+
+```bash
+# 1. quotation-tool.html を編集（APP_VERSION, ver-badge, CHANGELOGタブ内も更新）
+# 2. スナップショット作成
+cp quotation-tool.html releases/quotation-tool_vX.Y.Z.html
+# 3. CHANGELOG.md, README.md, WORK_LOG.md を更新
+# 4. gh-pages ブランチの quotation-tool.html も更新
+# 5. コミット＆プッシュ（main + gh-pages）
+```
 
 ---
 

@@ -16,12 +16,23 @@ The file lives in the Bob playground workspace:
 /Users/kevinshim/.bob/playground/quotation-tool.html
 ```
 
-It has been committed to **two** GitHub repositories:
+It is managed across two GitHub repositories:
 
-- **管理者リポジトリ（個人作業用）:** https://github.com/ibmkevin/playground (Private — ibmkevin のみ)
-- **チーム共有リポジトリ:** https://github.com/ibmkevin/quotation-tool (Private — チームメンバー向け)
+- **管理者作業リポジトリ（個人）:** https://github.com/ibmkevin/playground (Private — ibmkevin のみ)
+- **チーム共有リポジトリ（正式）:** https://github.com/ibm-el-japan/quotation-tool (Public — チームメンバー向け)
 - **Branch:** `main`
-- **GitHub user:** `ibmkevin`
+- **GitHub Organization:** `ibm-el-japan`
+
+---
+
+## GitHub Pages（ワンクリックアクセス）
+
+| 項目 | URL |
+|---|---|
+| **チームポータル** | https://ibm-el-japan.github.io/quotation-tool/ |
+| **ツール直接リンク** | https://ibm-el-japan.github.io/quotation-tool/quotation-tool.html |
+| Pages ブランチ | `gh-pages` |
+| ステータス | built / 公開中 |
 
 ---
 
@@ -46,7 +57,7 @@ It has been committed to **two** GitHub repositories:
 
 ## Repository Structure
 
-### 管理者リポジトリ: ibmkevin/playground
+### 管理者作業リポジトリ: ibmkevin/playground
 
 ```
 playground/
@@ -59,35 +70,40 @@ playground/
 └── README.md
 ```
 
-### チーム共有リポジトリ: ibmkevin/quotation-tool
+### チーム共有リポジトリ: ibm-el-japan/quotation-tool
 
 ```
-quotation-tool/
-├── quotation-tool.html              ← チーム向け最新版テンプレート
+quotation-tool/                  ← https://github.com/ibm-el-japan/quotation-tool
+├── quotation-tool.html          ← チーム向け最新版テンプレート
 ├── releases/
-│   └── quotation-tool_v1.1.0.html  ← バージョン付きスナップショット
-├── work/                            ← チームの案件作業ファイル置き場
-│   └── README.md                    ← 命名規則・フロー説明
-├── WORK_LOG.md                      ← チーム変更履歴ログ
+│   └── quotation-tool_v1.1.0.html
+├── work/                        ← チームの案件作業ファイル置き場
+│   └── README.md
+├── docs/
+│   └── quotation-tool-skill.md  ← スキルバックアップ
+├── WORK_LOG.md                  ← チーム変更履歴ログ
 ├── CHANGELOG.md
 └── README.md
+[gh-pages branch]
+├── index.html                   ← チームポータル
+└── quotation-tool.html          ← Pages配信用
 ```
 
 ---
 
 ## GitHub Access & Permissions
 
-### チーム共有リポジトリの権限ロール
+### Organization: ibm-el-japan
 
 | ロール | 対象 | 操作可能な範囲 |
 |---|---|---|
-| Admin | ibmkevin（管理者） | 全設定・コラボレーター管理・全ファイル変更 |
+| Owner / Admin | ibmkevin（管理者） | 全設定・メンバー管理・全ファイル変更 |
 | Write | チームメンバー（担当SE等） | ファイル閲覧・ダウンロード・work/へのアップロード |
 | Read | 参照専用メンバー | ファイル閲覧・ダウンロードのみ |
 
-### コラボレーター招待
-Settings → Collaborators and teams → Add people:
-https://github.com/ibmkevin/quotation-tool/settings/access
+### メンバー招待
+https://github.com/orgs/ibm-el-japan/people または
+https://github.com/ibm-el-japan/quotation-tool/settings/access
 
 ### ツール内の権限モード
 
@@ -109,15 +125,16 @@ https://github.com/ibmkevin/quotation-tool/settings/access
 ```
 
 ### フロー
-1. `quotation-tool.html` を Raw → 保存 → ブラウザで開く
-2. 入力 → 💾 保存 → 命名規則でリネーム
-3. `work/` フォルダにアップロード（GitHub上: Add file → Upload files）
-4. `WORK_LOG.md` に変更内容を追記（✏️ Edit → Commit）
-5. 次の担当者が `work/` の最新ファイルを取得して継続
+1. https://ibm-el-japan.github.io/quotation-tool/ を開く（ポータル）
+2. 「ツールを開く」ボタンをクリック → ブラウザ上でそのまま動作
+3. 入力 → 💾 保存 → 命名規則でリネーム
+4. `work/` フォルダにアップロード（GitHub上: Add file → Upload files）
+5. `WORK_LOG.md` に変更内容を追記（✏️ Edit → Commit）
+6. 次の担当者が `work/` の最新ファイルを取得して継続
 
 ### 変更履歴の確認
-- **WORK_LOG.md**: https://github.com/ibmkevin/quotation-tool/blob/main/WORK_LOG.md
-- **Git commit履歴**: リポジトリの Commits タブ
+- **WORK_LOG.md**: https://github.com/ibm-el-japan/quotation-tool/blob/main/WORK_LOG.md
+- **Git commit履歴**: https://github.com/ibm-el-japan/quotation-tool/commits/main
 
 ---
 
@@ -134,13 +151,12 @@ https://github.com/ibmkevin/quotation-tool/settings/access
 
 ### PAT 管理
 
-| PAT | 用途 | リポジトリ |
+| PAT | 認証ユーザー | 用途 |
 |---|---|---|
-| Fine-grained PAT（`~/.bob/settings/mcp.json` 参照） | 現在の `mcp.json` に設定済み | `quotation-tool` リポジトリへの書き込み |
-| Classic PAT（旧）| 失効 / 権限なし | `playground` への書き込みは現在不可 |
+| `ghp_****`（`~/.bob/settings/mcp.json` 参照） | kevinshim-space | `ibm-el-japan/quotation-tool` への書き込み |
+| Classic PAT（旧）| ibmkevin | 失効 — `ibmkevin/playground` への書き込みは現在不可 |
 
-> ⚠️ `playground` リポジトリへのプッシュには別途 `repo` スコープを持つ PAT が必要。
-> GitHub Settings → Developer settings → Personal access tokens で再生成すること。
+> ⚠️ `ibmkevin/playground` へのプッシュには別途 `repo` スコープを持つ PAT が必要。
 
 ---
 
@@ -155,12 +171,16 @@ cp quotation-tool.html releases/quotation-tool_vX.Y.Z.html
 
 # 3. CHANGELOG.md に追記
 
-# 4. playground リポジトリへコミット（PAT更新後）
-git add quotation-tool.html releases/ CHANGELOG.md README.md docs/quotation-tool-skill.md
-git commit -m "release: vX.Y.Z — [変更概要]"
-git push
+# 4. ibm-el-japan/quotation-tool へプッシュ（temp-dir パターン）
+PAT="<token>"
+TMPDIR=$(mktemp -d) && cd "$TMPDIR"
+git init && git checkout -b main
+git remote add origin "https://ibm-el-japan:<PAT>@github.com/ibm-el-japan/quotation-tool.git"
+git fetch origin main --quiet && git reset --hard origin/main
+# ファイルをコピー後:
+git add . && git commit -m "release: vX.Y.Z — [変更概要]" && git push origin main
 
-# 5. quotation-tool リポジトリへも反映（新PAT使用）
+# 5. gh-pages ブランチも更新（同じパターンで gh-pages ブランチへ）
 ```
 
 ### バージョニングポリシー
@@ -174,21 +194,15 @@ git push
 
 ## Known Issues / Follow-up Items
 
-- `playground` リポジトリへの git push が現在不可（旧PATが失効）。
-  新しい `repo` スコープ付き Classic PAT を生成し、以下を実行:
+- `ibmkevin/playground` リポジトリへの git push が現在不可（旧PATが失効）。
+  新しい `repo` スコープ付き Classic PAT を生成し以下を実行:
   ```bash
   git remote set-url origin "https://ibmkevin:<NEW_PAT>@github.com/ibmkevin/playground.git"
   git push
   ```
 
-- `mcp.json` の `GITHUB_PERSONAL_ACCESS_TOKEN` は現在 `quotation-tool` 専用PAT。
-  `playground` 用の PAT は別途管理が必要。
-
-- Git `user.name` / `user.email` の初期設定:
-  ```bash
-  git config --global user.name "Kevin Shim"
-  git config --global user.email "kevinshim@jp.ibm.com"
-  ```
+- 現在の `mcp.json` の PAT は `kevinshim-space` ユーザーとして認証される。
+  `ibm-el-japan/quotation-tool` への書き込みはこの PAT で可能。
 
 ---
 
@@ -196,36 +210,32 @@ git push
 
 1. Open Bob in the playground workspace (`/Users/kevinshim/.bob/playground`).
 2. Activate this skill by typing `/quotation-tool` or asking about the quotation tool.
-3. Read `quotation-tool.html` to check the current state (currently v1.1.0, 1899 lines).
-4. Make changes, then push to `quotation-tool` repo using the current PAT:
-   ```bash
-   # Push to quotation-tool repo (current PAT works)
-   # Use the temp-dir push pattern (see version management above)
-   ```
+3. Read `quotation-tool.html` (currently v1.1.0, 1899 lines).
+4. Push changes to `ibm-el-japan/quotation-tool` using the current PAT (temp-dir pattern).
 
 ---
 
 ## How to Update This Skill
 
-The live skill Bob reads is at:
+Live skill location (Bob reads this):
 ```
 ~/.bob/skills/quotation-tool/SKILL.md
 ```
 
-The GitHub backup is at:
+GitHub backup (review/edit here):
 ```
-https://github.com/ibmkevin/playground/blob/main/docs/quotation-tool-skill.md
+https://github.com/ibm-el-japan/quotation-tool/blob/main/docs/quotation-tool-skill.md
 ```
 
-To sync after editing locally:
+Sync after local edit:
 ```bash
 cp ~/.bob/skills/quotation-tool/SKILL.md \
    /Users/kevinshim/.bob/playground/docs/quotation-tool-skill.md
-# then git add / commit / push (requires playground PAT)
+# Push to ibm-el-japan/quotation-tool via temp-dir pattern
 ```
 
-To sync after editing on GitHub:
+Sync after GitHub edit:
 ```bash
-git pull  # in playground directory
-cp docs/quotation-tool-skill.md ~/.bob/skills/quotation-tool/SKILL.md
+# Download updated file from GitHub, then:
+cp quotation-tool-skill.md ~/.bob/skills/quotation-tool/SKILL.md
 ```
