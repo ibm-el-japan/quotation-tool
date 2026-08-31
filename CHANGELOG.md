@@ -7,6 +7,22 @@ All notable changes to `quotation-tool.html` are documented here.
 
 ---
 
+## [v1.2.0] — 2025-08-31
+
+### 機能追加 (Added)
+- **GitHub連携機能** を追加
+  - 「☁️ GitHubへ保存」ボタン: `work/` フォルダに直接コミット（担当者名・変更コメントをコミットメッセージに自動記録）
+  - 「📂 GitHubから開く」ボタン: `work/` フォルダのファイル一覧を取得し、クリックで直接読み込み
+  - PAT は `sessionStorage` に保持（ページを閉じると削除）
+  - 変更履歴は GitHub コミット履歴で「誰が・いつ・何を」を把握可能
+  - `ibm-el-japan/quotation-tool` リポジトリに全リンクを統一
+- GitHub Pages 経由でクリックのみでツールを開けるよう整備（URLコピー不要）
+
+### 変更者
+- ibmkevin
+
+---
+
 ## [v1.1.0] — 2025-07-11
 
 ### 機能追加 (Added)
@@ -15,20 +31,8 @@ All notable changes to `quotation-tool.html` are documented here.
 - **管理者モード** 実装（🔑ボタン）
   - 一般ユーザー: お客様名・案件名・eDOU設定・工数・交通費・出力生成のみ操作可
   - 管理者モード: Labor単価・Contingency・GP・フォーマット変更が可能
-- **バージョン情報 / 変更履歴タブ** 追加（ツール内で閲覧可能）
-- GitHub コラボレーター設定・権限管理ガイドをツール内に組み込み
-- バージョンバッジをヘッダーに表示（`v1.1.0`）
-- 保存データに `appVersion` フィールドを追加（保存形式 version: 3）
-- **GitHub Pages** 設定（https://ibm-el-japan.github.io/quotation-tool/）
-- **チームポータル** (index.html) 追加 — ワンクリックでツールにアクセス可能
-- **work/** フォルダ追加 — チームの案件作業ファイル共有場所
-- **WORK_LOG.md** 追加 — 誰が・いつ・何を変更したか記録する変更履歴ログ
-- Organization `ibm-el-japan` へ移行（旧: `ibmkevin/quotation-tool`）
-
-### 変更 (Changed)
-- ヘッダーのバージョン表示を `CostPlanSheet2026 対応版` → `v1.1.0` に更新
-- 工数サマリーバーに「移動回数（合計）」「宿泊数（合計）」を追加表示
-- `TRAVEL_DEFAULT` に `linkedKosuField` プロパティを追加（工数連動フラグ）
+- **バージョン情報 / 変更履歴タブ** 追加
+- GitHub Pages 設定（https://ibm-el-japan.github.io/quotation-tool/）
 
 ### 変更者
 - ibmkevin
@@ -40,7 +44,7 @@ All notable changes to `quotation-tool.html` are documented here.
 ### 初版リリース (Initial Release)
 - 基本情報・チェックシート・工数・交通費等・作成出力の **5タブ**構成
 - CostPlanSheet2026.xlsm 対応の価格計算ロジック実装
-- **保存/読み込み機能**: プロジェクトデータを `.html` ファイルとして保存・復元
+- **保存/読み込み機能**: `.html` ファイルとして保存・復元
 - **お客様提出用出力**: 前提シート + 見積もりシートを印刷/PDF 出力対応
 
 ### 変更者
@@ -52,6 +56,7 @@ All notable changes to `quotation-tool.html` are documented here.
 
 | Version | ファイル | リリース日 |
 |---|---|---|
+| v1.2.0 | `releases/quotation-tool_v1.2.0.html` | 2025-08-31 |
 | v1.1.0 | `releases/quotation-tool_v1.1.0.html` | 2025-07-11 |
 | v1.0.0 | *(初版 — GitHub コミット履歴参照)* | 2025-07-01 |
 
