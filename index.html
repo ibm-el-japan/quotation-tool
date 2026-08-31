@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>見積もり作成ツール — チームポータル</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;font-size:14px;line-height:1.7;color:#1f2328;background:#eef2f8;min-height:100vh}
+.header{background:#1a56a0;color:#fff;padding:14px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(26,86,160,.3)}
+.header h1{font-size:18px;font-weight:700}
+.header .ver{font-size:11px;opacity:.75;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:8px}
+.main{max-width:800px;margin:24px auto 0;padding:0 16px 48px}
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:16px;overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px;background:#f7f8fa}
+.card-head h2{font-size:14px;font-weight:700;color:#1a3a5c;flex:1}
+.card-body{padding:16px 18px}
+.big-btn{display:block;width:100%;padding:18px;background:#1a56a0;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;letter-spacing:.03em;transition:background .15s}
+.big-btn:hover{background:#154a8a}
+.note{font-size:12px;color:#57606a;margin-top:8px;text-align:center}
+.steps{margin-top:8px}
+.step{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;font-size:13px}
+.step-n{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#1a56a0;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step-b{flex:1}.step-b strong{color:#1a3a5c}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.role-card{border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;font-size:12px}
+.role-card h4{font-weight:700;color:#1a3a5c;margin-bottom:4px;font-size:12px}
+.role-card ul{margin-left:14px;color:#374151}
+.role-card.admin{border-color:#f59e0b;background:#fffbeb}
+.wf-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 0;font-size:12px}
+.wf-box{background:#dce6f4;border:1px solid #b0c4de;border-radius:5px;padding:4px 10px;color:#1a3a5c;font-weight:600;white-space:nowrap}
+.wf-arr{color:#7aabe0;font-size:14px}
+.log-entry{border:1px solid #e5e7eb;border-radius:6px;margin-bottom:8px;overflow:hidden;font-size:12px}
+.log-head{background:#f0f5fc;padding:7px 12px;font-weight:700;color:#1a3a5c;display:flex;gap:8px;align-items:center}
+.log-body{padding:7px 12px;color:#374151;border-top:1px solid #e5e7eb}
+.badge{font-size:10px;padding:1px 7px;border-radius:8px;font-weight:700}
+.badge.new{background:#dcfce7;color:#166534}
+.badge.edit{background:#dbeafe;color:#1e40af}
+table{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}
+th{background:#dce6f4;padding:5px 10px;text-align:left;border:1px solid #e5e7eb;color:#1a3a5c;font-weight:700}
+td{padding:5px 10px;border:1px solid #e5e7eb;vertical-align:top}
+td.lbl{font-weight:600;background:#f7f8fa;white-space:nowrap}
+.path{background:#f0f3f7;border:1px solid #d0d7de;border-radius:3px;font-family:monospace;font-size:11px;padding:1px 6px}
+footer{text-align:center;font-size:11px;color:#57606a;padding:24px;border-top:1px solid #e5e7eb;background:#fff;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📋 見積もり作成ツール</h1>
+  <span class="ver">v1.1.0</span>
+</div>
+<div class="main">
+
+  <div class="card">
+    <div class="card-head"><h2>🚀 ツールを開く</h2></div>
+    <div class="card-body">
+      <a href="quotation-tool.html" class="big-btn">📋 見積もり作成ツールを開く</a>
+      <p class="note">クリックするとブラウザ上でそのまま動作します。インストール不要。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>📖 使い方（基本フロー）</h2></div>
+    <div class="card-body">
+      <div class="wf-row">
+        <div class="wf-box">① ツールを開く</div><div class="wf-arr">→</div>
+        <div class="wf-box">② 情報を入力</div><div class="wf-arr">→</div>
+        <div class="wf-box">③ 💾 保存</div><div class="wf-arr">→</div>
+        <div class="wf-box">④ work/ にアップ</div><div class="wf-arr">→</div>
+        <div class="wf-box">⑤ WORK_LOG 記入</div>
+      </div>
+      <div class="steps" style="margin-top:14px">
+        <div class="step"><div class="step-n">1</div><div class="step-b"><strong>上の「ツールを開く」ボタンをクリック</strong><br>ブラウザ上でそのまま動作します</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-b"><strong>各タブに情報を入力する</strong><br>基本情報 → チェックシート → 工数（移動回数・宿泊数含む）→ 交通費等</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-b"><strong>「💾 保存」ボタンでファイルをダウンロード</strong><br>命名規則に従ってリネーム: <span class="path">案件名_YYYYMMDD_v1_イニシャル.html</span></div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-b"><strong>GitHub の work/ フォルダにアップロード</strong><br><a href="https://github.com/ibmkevin/quotation-tool/tree/main/work" style="color:#1a56a0" target="_blank">work/ フォルダを開く</a> → Add file → Upload files → Commit</div></div>
+        <div class="step"><div class="step-n">5</div><div class="step-b"><strong>WORK_LOG.md に変更内容を記入</strong><br><a href="https://github.com/ibmkevin/quotation-tool/blob/main/WORK_LOG.md" style="color:#1a56a0" target="_blank">WORK_LOG.md を開く</a> → ✏️ Edit → 変更内容を追記 → Commit</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>🔄 他のメンバーのファイルを引き継いで編集する</h2></div>
+    <div class="card-body">
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-b"><strong>work/ フォルダで最新ファイルを確認する</strong><br><a href="https://github.com/ibmkevin/quotation-tool/tree/main/work" style="color:#1a56a0" target="_blank">work/ フォルダを開く</a> → 最新のファイルをクリック</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-b"><strong>Raw ボタン → ファイルを保存 → ブラウザで開く</strong><br>前回の入力内容がすべて復元された状態で開きます</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-b"><strong>修正後、「💾 保存」→ バージョン番号を +1 してリネーム</strong><br>例: <span class="path">案件名_20250714_v2_MT.html</span></div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-b"><strong>work/ にアップロード → WORK_LOG.md に変更内容を追記</strong></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>📝 ファイル命名規則</h2></div>
+    <div class="card-body">
+      <p style="font-family:monospace;background:#1e2939;color:#86efac;padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:10px">[案件略称]_[YYYYMMDD]_v[番号]_[担当者イニシャル].html</p>
+      <table>
+        <tr><th>要素</th><th>内容</th><th>例</th></tr>
+        <tr><td class="lbl">案件略称</td><td>お客様名や案件の略称</td><td>ABC社</td></tr>
+        <tr><td class="lbl">YYYYMMDD</td><td>そのバージョンを作成した日付</td><td>20250711</td></tr>
+        <tr><td class="lbl">v[番号]</td><td>修正するたびに +1</td><td>v1, v2, v3</td></tr>
+        <tr><td class="lbl">担当者イニシャル</td><td>作成した人のイニシャル</td><td>KS, MT</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>📄 変更履歴の確認方法</h2></div>
+    <div class="card-body">
+      <div class="log-entry">
+        <div class="log-head"><span class="badge new">WORK_LOG</span> 誰が・いつ・何を変更したかの詳細記録</div>
+        <div class="log-body"><a href="https://github.com/ibmkevin/quotation-tool/blob/main/WORK_LOG.md" style="color:#1a56a0;font-weight:700" target="_blank">📄 WORK_LOG.md を開く →</a><br>各バージョンの担当者・ベースファイル・変更内容・備考が一覧で確認できます。</div>
+      </div>
+      <div class="log-entry">
+        <div class="log-head"><span class="badge edit">Git 履歴</span> ファイルのアップロード・更新の時系列記録</div>
+        <div class="log-body"><a href="https://github.com/ibmkevin/quotation-tool/commits/main" style="color:#1a56a0;font-weight:700" target="_blank">🕒 コミット履歴を開く →</a><br>誰がいつどのファイルをアップしたか確認できます。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>🔐 権限・ロール</h2></div>
+    <div class="card-body">
+      <div class="role-grid">
+        <div class="role-card">
+          <h4>👤 一般ユーザー（デフォルト）</h4>
+          <ul>
+            <li>お客様名・案件名の入力</li>
+            <li>チェックシート・工数・交通費の入力</li>
+            <li>お客様提出用ドキュメントの出力</li>
+            <li>案件ファイルの保存・読み込み</li>
+            <li>work/ へのアップロード・WORK_LOG記入</li>
+          </ul>
+        </div>
+        <div class="role-card admin">
+          <h4>🔑 管理者モード（ツール内）</h4>
+          <ul>
+            <li>上記すべて＋</li>
+            <li>Labor単価の変更</li>
+            <li>Contingency・GP 率の変更</li>
+            <li>フォーマット変更・GitHub管理</li>
+          </ul>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#57606a;margin-top:10px">管理者モードへのログイン: ツール右上の 🔑 ボタン → パスワード入力</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>🔗 クイックリンク</h2></div>
+    <div class="card-body">
+      <table>
+        <tr><td class="lbl">📋 ツール（最新版）</td><td><a href="quotation-tool.html" style="color:#1a56a0">quotation-tool.html（このページ内で開く）</a></td></tr>
+        <tr><td class="lbl">📁 作業ファイル</td><td><a href="https://github.com/ibmkevin/quotation-tool/tree/main/work" style="color:#1a56a0" target="_blank">work/ フォルダ（GitHub）</a></td></tr>
+        <tr><td class="lbl">📄 変更履歴</td><td><a href="https://github.com/ibmkevin/quotation-tool/blob/main/WORK_LOG.md" style="color:#1a56a0" target="_blank">WORK_LOG.md（GitHub）</a></td></tr>
+        <tr><td class="lbl">📦 バージョン履歴</td><td><a href="https://github.com/ibmkevin/quotation-tool/blob/main/CHANGELOG.md" style="color:#1a56a0" target="_blank">CHANGELOG.md（GitHub）</a></td></tr>
+        <tr><td class="lbl">🕒 コミット履歴</td><td><a href="https://github.com/ibmkevin/quotation-tool/commits/main" style="color:#1a56a0" target="_blank">Commits（GitHub）</a></td></tr>
+        <tr><td class="lbl">⚙️ コラボレーター設定</td><td><a href="https://github.com/ibmkevin/quotation-tool/settings/access" style="color:#1a56a0" target="_blank">Settings → Collaborators（管理者のみ）</a></td></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+<footer>見積もり作成ツール v1.1.0 | IBM CostPlanSheet2026 対応 | Made with IBM Bob</footer>
+</body>
+</html>

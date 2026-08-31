@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>見積もり作成ツール</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;font-size:13px;line-height:1.5;color:#1a2b45;background:#eef2f8}
+#app{display:flex;flex-direction:column;min-height:100vh}
+#header{background:#1a56a0;color:#fff;padding:10px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 6px rgba(26,86,160,.3);flex-wrap:wrap}
+#header h1{font-size:15px;font-weight:700;letter-spacing:.03em;flex:1;min-width:160px}
+#header .ver{font-size:11px;opacity:.7}
+#header .header-btns{display:flex;gap:6px;align-items:center}
+#tabs{display:flex;border-bottom:3px solid #1a56a0;padding:0 12px;background:#dce6f4;overflow-x:auto}
+.tab-btn{padding:10px 16px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:#3d5a80;border-bottom:3px solid transparent;margin-bottom:-3px;white-space:nowrap}
+.tab-btn:hover{color:#1a56a0}
+.tab-btn.active{color:#1a56a0;border-bottom-color:#1a56a0}
+#content{flex:1;padding:16px 20px;max-width:1400px;width:100%}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.card{background:#fff;border:1px solid #c8d6ea;border-radius:8px;margin-bottom:16px;overflow:hidden}
+.card-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#eaf1fb;border-bottom:1px solid #c8d6ea;cursor:pointer;user-select:none}
+.card-header h3{font-size:13px;font-weight:700;flex:1;color:#1a3a5c}
+.card-header .ti{font-size:12px;color:#4a6fa5;transition:transform .2s}
+.card-header.collapsed .ti{transform:rotate(-90deg)}
+.card-body{padding:12px 14px}.card-body.hidden{display:none}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.info-row{display:flex;flex-direction:column;gap:3px}
+.info-row label{font-size:11px;font-weight:600;color:#4a6fa5}
+.info-row input,.info-row select{border:1px solid #b0c4de;border-radius:4px;padding:5px 8px;font-size:13px;width:100%;background:#f7faff}
+.info-row input:focus,.info-row select:focus{outline:none;border-color:#1a56a0;background:#fff}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12px}
+table th,table td{border:1px solid #c8d6ea;padding:5px 7px;text-align:center;white-space:nowrap}
+table th{background:#dce6f4;font-weight:700;font-size:11px;color:#1a3a5c}
+td.lc{text-align:left;font-weight:600;background:#eaf1fb;padding-left:8px;min-width:140px}
+td.sl{text-align:left;padding-left:20px;min-width:140px;background:#fff}
+td.sh{text-align:left;font-weight:700;background:#d0e0f5;color:#1a56a0;padding-left:8px}
+td.tc{background:#e8f4fd;font-weight:700;color:#1a3a5c}
+td.gt{background:#cfe2f3;font-weight:700;color:#0c3566}
+td.st{background:#d6eaf8;font-weight:700;color:#0c4a6e}
+table td input[type=number],table td input[type=text]{border:1px solid #b0c4de;border-radius:3px;padding:3px 5px;font-size:12px;width:100%;min-width:55px;background:#f7faff}
+table td input[type=text].w{min-width:110px;text-align:left}
+table td input[type=number]{text-align:right;-moz-appearance:textfield}
+table td input[type=number]::-webkit-inner-spin-button,table td input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+table td input:focus{outline:none;border-color:#1a56a0;background:#fff}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border:none;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.82}
+.bp{background:#1a56a0;color:#fff}.bs{background:#6b7280;color:#fff}.bg{background:#059669;color:#fff}
+.bd{background:#dc2626;color:#fff}.bw{background:#d97706;color:#fff}.bv{background:#7c5cd8;color:#fff}
+.bsm{padding:3px 7px;font-size:11px}
+.bg-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.mi{min-width:60px!important}
+.ctbl{width:100%;border-collapse:collapse}
+.ctbl td,.ctbl th{border:1px solid #c8d6ea;padding:5px 8px;font-size:12px}
+.ctbl th{background:#dce6f4;font-weight:700;font-size:11px;color:#1a3a5c}
+.ctbl input[type=checkbox]{width:14px;height:14px;cursor:pointer}
+.ctbl input[type=text]{width:100%;border:1px solid #b0c4de;border-radius:3px;padding:3px 6px;font-size:12px;background:#f7faff}
+.ctbl input[type=text]:focus{outline:none;border-color:#1a56a0;background:#fff}
+.oc{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;padding:12px;background:#eaf1fb;border:1px solid #c8d6ea;border-radius:6px}
+.oc label{font-size:12px;font-weight:600;color:#1a3a5c}
+.od{background:#fff;border:1px solid #c8d6ea;border-radius:6px;padding:20px 24px;font-size:13px;line-height:1.7;position:relative}
+.od h2{font-size:15px;font-weight:700;border-bottom:2px solid #1a56a0;padding-bottom:5px;margin:18px 0 10px;color:#1a56a0;display:flex;align-items:center;gap:6px}
+.od h3{font-size:13px;font-weight:700;margin:10px 0 5px;color:#1a3a5c;display:flex;align-items:center;gap:5px}
+.od ul{margin:4px 0 8px 18px}
+.od li{margin-bottom:2px;display:flex;align-items:flex-start;gap:5px}
+.od li span.lt{flex:1}
+.od table{margin:8px 0;font-size:12px}
+.od table th{background:#dce6f4}
+.od [contenteditable=true]:hover{outline:1px dashed #7aabe0;border-radius:2px}
+.od [contenteditable=true]:focus{outline:2px solid #1a56a0;border-radius:2px}
+.del-btn{background:none;border:none;cursor:pointer;color:#dc2626;font-size:12px;padding:1px 4px;border-radius:3px;flex-shrink:0;line-height:1}
+.del-btn:hover{background:#fee2e2}
+.sec-del{background:none;border:none;cursor:pointer;color:#dc2626;font-size:11px;padding:2px 6px;border-radius:3px;margin-left:4px}
+.sec-del:hover{background:#fee2e2}
+.sheet-del{background:#fee2e2;border:1px solid #fca5a5;color:#dc2626;font-size:11px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:auto}
+.sheet-del:hover{background:#fca5a5}
+.sheet-block{margin-bottom:24px;border:1px solid #c8d6ea;border-radius:8px;overflow:hidden}
+.sheet-header{background:#dce6f4;padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #c8d6ea}
+.sheet-header strong{font-size:14px;font-weight:700;flex:1;color:#1a3a5c}
+.sheet-body{padding:16px 14px}
+.np{margin-top:0}
+.hint{font-size:11px;color:#4a6fa5;margin-bottom:8px}
+.req{background:#dce6f4;color:#1a3a5c;font-size:10px;padding:1px 5px;border-radius:8px;margin-left:4px;font-weight:700;border:1px solid #b0c4de}
+.sb{display:flex;gap:14px;flex-wrap:wrap;background:#dce6f4;border:1px solid #b0c4de;border-radius:6px;padding:10px 14px;margin-bottom:12px}
+.sb .si{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sb .sl2{font-size:10px;color:#4a6fa5;font-weight:600}
+.sb .sv{font-size:15px;font-weight:700;color:#1a56a0}
+.toast{position:fixed;bottom:24px;right:24px;background:#1a3a5c;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+/* ── 工数 sticky header & col-resize ── */
+#tab-kosu .tbl-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 200px)}
+#tab-kosu table thead tr{position:sticky;top:0;z-index:4}
+#tab-kosu table thead th{position:sticky;top:0;z-index:3;background:#dce6f4;resize:horizontal;overflow:hidden;min-width:55px}
+#tab-kosu table thead th:first-child{z-index:5;left:0}
+/* 工数 odd/even month column colouring */
+.kosu-month-odd{background:#eef2f8}
+.kosu-month-even{background:#d6e8f7}
+td.kosu-month-odd{background:#eef2f8}
+td.kosu-month-even{background:#d6e8f7}
+td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-color:#b0c4de}
+/* 工数 sticky first column */
+#tab-kosu table td:first-child,#tab-kosu table th:first-child{position:sticky;left:0;z-index:2}
+/* 交通費等 col-resize */
+#tab-travel table thead th{resize:horizontal;overflow:hidden;min-width:55px}
+/* チェックシート 「トップへ戻る」 button */
+#cl-back-top{display:none;position:fixed;bottom:28px;right:28px;z-index:8888;background:#1a56a0;color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(26,86,160,.35)}
+#cl-back-top:hover{background:#154a8a}
+/* ── お客様提出用 output styles ── */
+.co-wrap{font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;font-size:13px;color:#1a2b45}
+.co-title{font-size:20px;font-weight:700;margin:0 0 20px;padding-bottom:10px;border-bottom:3px solid #1a56a0;color:#1a56a0;text-align:center}
+.co-section-heading{font-size:13px;font-weight:700;background:#1a56a0;color:#fff;padding:5px 10px;margin:16px 0 4px;letter-spacing:.04em}
+.co-item{padding:3px 6px 3px 18px;font-size:13px;line-height:1.6;border-bottom:1px solid #c8d6ea}
+.co-item:last-child{border-bottom:none}
+.co-quote-tbl{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+.co-quote-tbl td{border:1px solid #c8d6ea;padding:5px 10px;vertical-align:top}
+.co-quote-sec{background:#1a56a0;color:#fff;font-weight:700;padding:5px 10px;text-align:left}
+.co-quote-sub{padding:4px 10px 4px 24px;background:#fff;text-align:left}
+.co-quote-sub:nth-child(even){background:#f0f5fc}
+.co-total-row td{background:#dce6f4;font-weight:700;font-size:14px;padding:7px 10px;color:#0c3566}
+.co-note{font-size:11px;color:#4a6fa5;padding:3px 10px;background:#eaf1fb;border-top:1px solid #c8d6ea;line-height:1.6}
+.co-disclaimer{font-size:12px;background:#eaf1fb;border:1px solid #b0c4de;border-radius:4px;padding:8px 12px;margin-bottom:14px;color:#1a3a5c;line-height:1.6}
+/* ── お客様提出用 シートタイトル ── */
+.co-sheet-title{font-size:18px!important;font-weight:700;flex:1;text-align:center;color:#1a3a5c;letter-spacing:.06em}
+/* ── 管理者モード ── */
+.admin-lock{opacity:.38;pointer-events:none;user-select:none}
+#admin-bar{display:flex;align-items:center;gap:8px;padding:5px 12px;background:#1e3a5f;color:#fff;font-size:11px;font-weight:600;border-bottom:2px solid #f59e0b}
+#admin-badge{background:#f59e0b;color:#1e3a5f;border-radius:8px;padding:1px 8px;font-size:10px;font-weight:700}
+/* ── バージョン・CHANGELOG タブ ── */
+#tab-changelog .card-body{font-size:12px;line-height:1.8}
+#tab-changelog table{max-width:900px}
+#tab-changelog td{text-align:left;white-space:normal}
+@media print{
+  /* ── お客様提出用 印刷モード ── */
+  body.print-customer > *{display:none!important}
+  body.print-customer > #co-print-wrap{display:block!important;padding:20px;box-sizing:border-box}
+  body.print-customer > #co-print-wrap .sheet-block{page-break-inside:avoid;margin-bottom:0!important}
+  body.print-customer > #co-print-wrap .sheet-block+.sheet-block{margin-top:0!important}
+  body.print-customer > #co-print-wrap .co-quote-sheet{page-break-before:always}
+  body.print-customer > #co-print-wrap *{margin-top:0!important;margin-bottom:0!important}
+  body.print-customer > #co-print-wrap .sheet-body{padding-bottom:0!important}
+  /* ── 通常の印刷モード ── */
+  #header,#tabs,.np,.btn,.bg-row,.oc,.del-btn,.sec-del,.sheet-del,#admin-bar{display:none!important}
+  #content{padding:0;max-width:none}
+  .tab-panel{display:block!important}
+  .card{border:none;margin-bottom:8px}
+  body{background:#fff}
+  #cl-back-top{display:none!important}
+}
+</style>
+</head>
+<body>
+<!-- ── 管理者バー (管理者モード時のみ表示) ── -->
+<div id="admin-bar" style="display:none">
+  <span id="admin-badge">🔑 管理者モード</span>
+  <span style="flex:1">フォーマットの変更・管理が可能です</span>
+  <button class="btn bw bsm" onclick="lockAdmin()">🔒 管理者ログアウト</button>
+</div>
+
+<div id="app">
+  <div id="header">
+    <h1>📋 見積もり作成ツール</h1>
+    <span class="ver" id="ver-badge">v1.1.0</span>
+    <div class="header-btns">
+      <button class="btn bv" onclick="saveProject()">💾 保存</button>
+      <button class="btn bp" onclick="document.getElementById('load-file').click()">📂 読み込み</button>
+      <input type="file" id="load-file" accept=".html" style="display:none" onchange="loadProject(this)">
+      <button class="btn bg" onclick="window.print()">🖨️ 印刷/PDF</button>
+      <button class="btn bs bsm" id="admin-login-btn" onclick="promptAdminLogin()" title="管理者ログイン">🔑</button>
+    </div>
+  </div>
+
+  <div id="tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-basic')">基本情報</button>
+    <button class="tab-btn" onclick="switchTab('tab-checklist')">チェックシート</button>
+    <button class="tab-btn" onclick="switchTab('tab-kosu')">工数</button>
+    <button class="tab-btn" onclick="switchTab('tab-travel')">交通費等</button>
+    <button class="tab-btn" onclick="switchTab('tab-output')">作成・出力</button>
+    <button class="tab-btn" onclick="switchTab('tab-changelog')">📋 バージョン情報</button>
+  </div>
+
+  <div id="content">
+
+    <!-- TAB 1: 基本情報 -->
+    <div id="tab-basic" class="tab-panel active">
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <h3>📌 基本情報</h3>
+          <span class="ti">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="info-grid">
+            <div class="info-row">
+              <label>お客様名</label>
+              <input type="text" id="customer-name" placeholder="例: 株式会社〇〇 様" oninput="syncBasicInfo()">
+            </div>
+            <div class="info-row">
+              <label>案件名</label>
+              <input type="text" id="project-name" placeholder="例: ×× 導入支援案件" oninput="syncBasicInfo()">
+            </div>
+            <div class="info-row admin-lock">
+              <label>Labor 単価（円/時間）</label>
+              <input type="number" id="labor-rate" value="17600" oninput="recalcAll()">
+            </div>
+            <div class="info-row admin-lock">
+              <label>Contingency（例: 0.10 = 10%）</label>
+              <input type="number" id="contingency" value="0.10" step="0.01" oninput="recalcAll()">
+            </div>
+            <div class="info-row admin-lock">
+              <label>GP（例: 0.36 = 36%）</label>
+              <input type="number" id="gp" value="0.36" step="0.01" oninput="recalcAll()">
+            </div>
+            <div class="info-row">
+              <label>eDOU での契約</label>
+              <select id="is-dou" onchange="recalcAll()">
+                <option value="false">いいえ</option>
+                <option value="true">はい</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <h3>📅 見積もり期間設定</h3>
+          <span class="ti">▼</span>
+        </div>
+        <div class="card-body">
+          <p class="hint">プロジェクト開始月と期間（月数）を設定してください。工数シートの月ラベルが自動更新されます。</p>
+          <div class="info-grid">
+            <div class="info-row">
+              <label>開始年</label>
+              <input type="number" id="start-year" value="2026" min="2020" max="2040" oninput="rebuildKosuMonths()">
+            </div>
+            <div class="info-row">
+              <label>開始月</label>
+              <select id="start-month" onchange="rebuildKosuMonths()">
+                <option value="4">4月</option>
+                <option value="5">5月</option>
+                <option value="6">6月</option>
+                <option value="7">7月</option>
+                <option value="8">8月</option>
+                <option value="9">9月</option>
+                <option value="10">10月</option>
+                <option value="11">11月</option>
+                <option value="12">12月</option>
+                <option value="1">1月</option>
+                <option value="2">2月</option>
+                <option value="3">3月</option>
+              </select>
+            </div>
+            <div class="info-row">
+              <label>期間（月数）</label>
+              <input type="number" id="period-months" value="12" min="1" max="60" oninput="rebuildKosuMonths()">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sb">
+        <div class="si"><span class="sl2">総工数 (h)</span><span class="sv" id="sum-hours">0</span></div>
+        <div class="si"><span class="sl2">Labor コスト</span><span class="sv" id="sum-labor">¥0</span></div>
+        <div class="si"><span class="sl2">その他費用</span><span class="sv" id="sum-other">¥0</span></div>
+        <div class="si"><span class="sl2">Contingency</span><span class="sv" id="sum-cont">¥0</span></div>
+        <div class="si"><span class="sl2">GP</span><span class="sv" id="sum-gp-val">¥0</span></div>
+        <div class="si"><span class="sl2">参考見積もり額</span><span class="sv" id="sum-total">¥0</span></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: チェックシート -->
+    <div id="tab-checklist" class="tab-panel">
+      <p class="hint">各項目の左のチェックボックスで有効/無効を切り替えます。テキストは直接編集できます。行の追加・削除が可能です。</p>
+      <div id="checklist-sections"></div>
+    </div>
+    <button id="cl-back-top" onclick="document.getElementById('tab-checklist').scrollIntoView({behavior:'smooth'})">▲ トップへ戻る</button>
+
+    <!-- TAB 3: 工数 -->
+    <div id="tab-kosu" class="tab-panel">
+      <div class="sb" style="margin-bottom:12px">
+        <div class="si"><span class="sl2">総工数 (h)</span><span class="sv" id="kosu-total-h">0</span></div>
+        <div class="si"><span class="sl2">参考 Labor コスト</span><span class="sv" id="kosu-total-cost">¥0</span></div>
+        <div class="si"><span class="sl2">移動回数（合計）</span><span class="sv" id="kosu-total-trips">0</span></div>
+        <div class="si"><span class="sl2">宿泊数（合計）</span><span class="sv" id="kosu-total-nights">0</span></div>
+      </div>
+      <p class="hint">「移動回数」と「宿泊数」を入力すると、交通費等タブの対応行へ自動的に反映されます。</p>
+      <div id="kosu-table-wrap"></div>
+    </div>
+
+    <!-- TAB 4: 交通費等 -->
+    <div id="tab-travel" class="tab-panel">
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <h3>💴 その他費用</h3>
+          <span class="ti">▼</span>
+        </div>
+        <div class="card-body">
+          <p class="hint">工数シートで入力した「移動回数」「宿泊数」が <strong>回数</strong> 列に自動反映されます。単価を入力してください。</p>
+          <div class="bg-row">
+            <button class="btn bp bsm" onclick="addTravelRow()">＋ 行を追加</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>費用種別</th>
+                  <th>場所</th>
+                  <th>単価（円）</th>
+                  <th>人数</th>
+                  <th>回数</th>
+                  <th>合計（円）</th>
+                  <th>見積もり方針</th>
+                  <th class="np"></th>
+                </tr>
+              </thead>
+              <tbody id="travel-tbody"></tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="5" style="text-align:right;font-weight:700;background:#f0f3f7">その他費用合計</td>
+                  <td id="travel-grand-total" style="font-weight:700;color:#78350f;background:#fef3c7">¥0</td>
+                  <td colspan="2" style="background:#f0f3f7"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <h3>📖 参考情報</h3>
+          <span class="ti">▼</span>
+        </div>
+        <div class="card-body">
+          <div class="tbl-wrap">
+            <table style="max-width:500px">
+              <thead>
+                <tr><th>種別</th><th>条件</th><th>金額（円）</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="lc">中距離出張手当</td><td>—</td><td>1,500</td></tr>
+                <tr><td class="lc">長距離出張手当</td><td>—</td><td>3,500</td></tr>
+                <tr><td class="lc">宿泊出張手当</td><td>朝食×夕食×</td><td>4,000</td></tr>
+                <tr><td class="lc">宿泊出張手当</td><td>朝食○夕食×</td><td>3,200</td></tr>
+                <tr><td class="lc">宿泊出張手当</td><td>朝食×夕食○</td><td>1,300</td></tr>
+                <tr><td class="lc">宿泊出張手当</td><td>朝食○夕食○</td><td>500</td></tr>
+                <tr><td class="lc">宿泊費上限（全国）</td><td>—</td><td>10,000</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: 作成・出力 -->
+    <div id="tab-output" class="tab-panel">
+      <div class="oc np">
+        <label>出力オプション:</label>
+        <button class="btn bp" onclick="generateOutput('both')">📄 前提と見積もりの作成</button>
+        <button class="btn bs" onclick="generateOutput('premise')">📋 前提のみ作成</button>
+        <button class="btn bw" onclick="generateOutput('quote')">💴 見積もりのみ作成</button>
+        <button class="btn bg" onclick="window.print()">🖨️ 印刷/PDF</button>
+        <button class="btn" style="background:#0f766e;color:#fff" onclick="generateCustomerOutput()">📋 お客様提出用</button>
+        <button class="btn" style="background:#0f766e;color:#fff" onclick="printCustomerOutput()">🖨️ お客様提出用 印刷/PDF</button>
+      </div>
+
+      <!-- 価格詳細パネル -->
+      <div style="background:#fff;border:1px solid #d8dde3;border-radius:8px;margin-bottom:14px;overflow:hidden;max-width:400px">
+        <div style="background:#1a56a0;color:#fff;padding:7px 14px;font-size:13px;font-weight:700;letter-spacing:.04em">価格詳細</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <tbody>
+            <tr style="border-bottom:1px solid #e5e7eb">
+              <td style="padding:6px 14px;color:#374151">Labor cost</td>
+              <td style="padding:6px 14px;text-align:right;font-weight:600" id="pd-labor">¥0</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e5e7eb">
+              <td style="padding:6px 14px;color:#374151">Other cost</td>
+              <td style="padding:6px 14px;text-align:right;font-weight:600" id="pd-other">¥0</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e5e7eb">
+              <td style="padding:6px 14px;color:#374151">Contingency</td>
+              <td style="padding:6px 14px;text-align:right;font-weight:600" id="pd-cont">¥0</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e5e7eb">
+              <td style="padding:6px 14px;color:#374151">GP</td>
+              <td style="padding:6px 14px;text-align:right;font-weight:600" id="pd-gp">¥0</td>
+            </tr>
+            <tr style="border-bottom:2px solid #d8dde3;background:#f5f7fa">
+              <td style="padding:6px 14px;font-weight:700;color:#1f2328">合計</td>
+              <td style="padding:6px 14px;text-align:right;font-weight:700;color:#1f2328" id="pd-total">¥0</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e5e7eb">
+              <td style="padding:6px 14px;color:#374151">丸め度</td>
+              <td style="padding:6px 14px;text-align:right">
+                <select id="rounding-unit" onchange="recalcAll()" style="border:1px solid #d0d7de;border-radius:4px;padding:4px 8px;font-size:12px">
+                  <option value="0">丸めない</option>
+                  <option value="10000">万円</option>
+                  <option value="50000">五万円</option>
+                  <option value="100000" selected>十万円</option>
+                  <option value="500000">五十万円</option>
+                  <option value="1000000">百万円</option>
+                </select>
+              </td>
+            </tr>
+            <tr style="background:#fef3c7">
+              <td style="padding:8px 14px;font-weight:700;font-size:14px;color:#78350f">参考見積もり</td>
+              <td style="padding:8px 14px;text-align:right;font-weight:700;font-size:14px;color:#78350f" id="pd-rounded">¥0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="hint np">生成されたドキュメントはすべて直接編集可能です。クリックして内容を変更してください。削除ボタンで各シート・セクション・行を削除できます。</p>
+      <div id="output-area"></div>
+    </div>
+
+    <!-- TAB 6: バージョン情報 / CHANGELOG -->
+    <div id="tab-changelog" class="tab-panel">
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <h3>📋 リリースバージョン情報</h3>
+          <span class="ti">▼</span>
+        </div>
+        <div class="card-body">
+          <table style="max-width:700px">
+            <thead><tr><th>項目</th><th>内容</th></tr></thead>
+            <tbody>
+              <tr><td class="lc">Release Version</td><td style="text-align:left"><strong>v1.1.0</strong></td></tr>
+              <tr><td class="lc">リリース日</td><td style="text-align:left">2025-07-11</td></tr>
+              <tr><td class="lc">対応ベース</td><td style="text-align:left">CostPlanSheet2026.xlsm</td></tr>
+              <tr><td class="lc">GitHub リポジトリ</td><td style="text-align:left"><a href="https://github.com/ibmkevin/playground" target="_blank">https://github.com/ibmkevin/playground</a></td></tr>
+              <tr><td class="lc">ファイル名</td><td style="text-align:left">quotation-tool.html</td></tr>
+              <tr><td class="lc">管理者</td><td style="text-align:left">ibmkevin</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <h3>🗒️ 変更履歴 (Change History)</h3>
+          <span class="ti">▼</span>
+        </div>
+        <div class="card-body">
+          <table>
+            <thead>
+              <tr>
+                <th style="min-width:70px">Version</th>
+                <th style="min-width:90px">日付</th>
+                <th style="min-width:80px">変更者</th>
+                <th style="min-width:100px">変更種別</th>
+                <th>変更内容</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>v1.1.0</strong></td>
+                <td>2025-07-11</td>
+                <td>ibmkevin</td>
+                <td><span style="background:#dbeafe;color:#1e40af;border-radius:4px;padding:1px 6px;font-size:11px">機能追加</span></td>
+                <td style="text-align:left;white-space:normal">
+                  工数シートに「移動回数」「宿泊数」列を追加。入力値が交通費等タブの対応行（回数列）へ自動連動。
+                  管理者/一般ユーザー権限モード実装（Labor単価・Contingency・GP・フォーマット変更は管理者のみ操作可能）。
+                  バージョン情報・変更履歴タブ追加。GitHub コラボレーター設定ドキュメント追加。
+                </td>
+              </tr>
+              <tr>
+                <td>v1.0.0</td>
+                <td>2025-07-01</td>
+                <td>ibmkevin</td>
+                <td><span style="background:#dcfce7;color:#166534;border-radius:4px;padding:1px 6px;font-size:11px">初版リリース</span></td>
+                <td style="text-align:left;white-space:normal">
+                  基本情報・チェックシート・工数・交通費等・作成出力の5タブ構成で初版リリース。
+                  CostPlanSheet2026.xlsm 対応。保存/読み込み機能、お客様提出用出力機能を実装。
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <h3>👥 GitHub コラボレーター設定・権限管理</h3>
+          <span class="ti">▼</span>
+        </div>
+        <div class="card-body" id="tab-changelog">
+          <p class="hint">同じ部署のチームメンバーがリポジトリにアクセスし、ファイルを共同編集するための設定手順です。</p>
+          <table style="max-width:900px;margin-bottom:14px">
+            <thead><tr><th>ロール</th><th>権限</th><th>用途</th></tr></thead>
+            <tbody>
+              <tr><td class="lc">Admin（管理者）</td><td style="text-align:left">リポジトリの全設定・削除・コラボレーター管理・ブランチ保護</td><td style="text-align:left">フォーマット管理者（ibmkevin 等）</td></tr>
+              <tr><td class="lc">Write（書き込み）</td><td style="text-align:left">ファイルの作成・編集・コミット・プルリクエスト作成</td><td style="text-align:left">チームメンバー（担当SE等）</td></tr>
+              <tr><td class="lc">Read（読み取り）</td><td style="text-align:left">ファイルの閲覧・ダウンロードのみ</td><td style="text-align:left">参照のみのメンバー</td></tr>
+            </tbody>
+          </table>
+          <p style="font-weight:700;margin-bottom:6px;font-size:12px">コラボレーター追加手順</p>
+          <ol style="margin:0 0 12px 18px;font-size:12px;line-height:2">
+            <li>GitHub の <a href="https://github.com/ibmkevin/playground/settings/access" target="_blank">Settings → Collaborators and teams</a> を開く</li>
+            <li>「Add people」または「Add teams」をクリック</li>
+            <li>追加したいメンバーの GitHub ユーザー名またはメールアドレスを入力</li>
+            <li>ロールを <strong>Write</strong>（通常メンバー）または <strong>Admin</strong>（管理者）から選択</li>
+            <li>「Add [username] to this repository」をクリック → 招待メールが送信される</li>
+            <li>招待されたメンバーがメール内のリンクを承認するとアクセス可能になる</li>
+          </ol>
+          <p style="font-weight:700;margin-bottom:6px;font-size:12px">ファイル共同編集フロー（推奨）</p>
+          <ol style="margin:0 0 12px 18px;font-size:12px;line-height:2">
+            <li>GitHub の <a href="https://github.com/ibmkevin/playground/blob/main/quotation-tool.html" target="_blank">quotation-tool.html</a> を開き「Raw」→ ブラウザに直接ドラッグ&ドロップして使用</li>
+            <li>案件ごとに「💾 保存」で .html ファイルをダウンロードし、案件フォルダで管理</li>
+            <li>フォーマット変更が必要な場合は管理者が quotation-tool.html を更新して GitHub へプッシュ</li>
+            <li>チームは常に GitHub の最新版を参照することで同一フォーマットを使用</li>
+          </ol>
+          <p style="font-weight:700;margin-bottom:6px;font-size:12px">ツール内の権限モード</p>
+          <table style="max-width:700px">
+            <thead><tr><th>モード</th><th>操作可能な項目</th><th>制限される項目</th></tr></thead>
+            <tbody>
+              <tr><td class="lc">一般ユーザー（デフォルト）</td><td style="text-align:left;white-space:normal">お客様名・案件名・eDOU設定・チェックシート・工数入力・交通費入力・出力生成</td><td style="text-align:left;white-space:normal">Labor単価・Contingency・GP・チェックシートのデフォルト項目追加削除</td></tr>
+              <tr><td class="lc">管理者モード（🔑ボタン）</td><td style="text-align:left;white-space:normal">全項目（Labor単価・Contingency・GP・フォーマット変更含む）</td><td style="text-align:left">なし</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- #content -->
+</div><!-- #app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== VERSION =====================
+const APP_VERSION = 'v1.1.0';
+const APP_RELEASE_DATE = '2025-07-11';
+
+// ===================== ADMIN MODE =====================
+let _isAdmin = false;
+const ADMIN_PASSWORD = 'admin1234'; // Change this in production
+
+function promptAdminLogin() {
+  if (_isAdmin) { lockAdmin(); return; }
+  const pw = prompt('管理者パスワードを入力してください:');
+  if (pw === ADMIN_PASSWORD) {
+    _isAdmin = true;
+    document.getElementById('admin-bar').style.display = 'flex';
+    document.getElementById('admin-login-btn').textContent = '🔓';
+    document.getElementById('admin-login-btn').title = '管理者ログアウト';
+    document.querySelectorAll('.admin-lock').forEach(el => {
+      el.classList.remove('admin-lock');
+      el.dataset.adminLocked = '1';
+    });
+    showToast('管理者モードでログインしました');
+  } else if (pw !== null) {
+    showToast('パスワードが違います');
+  }
+}
+
+function lockAdmin() {
+  _isAdmin = false;
+  document.getElementById('admin-bar').style.display = 'none';
+  document.getElementById('admin-login-btn').textContent = '🔑';
+  document.getElementById('admin-login-btn').title = '管理者ログイン';
+  document.querySelectorAll('[data-admin-locked="1"]').forEach(el => {
+    el.classList.add('admin-lock');
+    el.removeAttribute('data-admin-locked');
+  });
+  showToast('管理者モードからログアウトしました');
+}
+
+// ===================== DATA DEFINITIONS =====================
+
+const CHECKLIST_DEFAULT = [
+  {
+    title: "サービス内容",
+    items: [
+      {checked:true, text:"（サンプル）", tag:""},
+      {checked:true, text:"1. 設計作業（xxxx年xx月～xxxx年xx月）", tag:""},
+      {checked:true, text:"2. 導入・構築作業（xxxx年xx月～xxxx年xx月）", tag:""},
+      {checked:true, text:"3. テスト作業（xxxx年xx月～xxxx年xx月）", tag:""},
+      {checked:true, text:"4. ドキュメント作成作業（xxxx年xx月～xxxx年xx月）", tag:""},
+      {checked:false, text:"", tag:""},
+      {checked:false, text:"", tag:""}
+    ]
+  },
+  {
+    title: "サービス対象",
+    items: [
+      {checked:true, text:"（サンプル）", tag:""},
+      {checked:true, text:"・xxxxx（xx環境：xx台/xx環境：xx台）", tag:""},
+      {checked:true, text:"・xxxxx（xx環境：xx台/xx環境：xx台）", tag:""},
+      {checked:false, text:"", tag:""},
+      {checked:false, text:"", tag:""}
+    ]
+  },
+  {
+    title: "提出ドキュメント",
+    items: [
+      {checked:false, text:"基本設計書", tag:""},
+      {checked:false, text:"詳細設計書", tag:""},
+      {checked:false, text:"スクリプト設計書", tag:""},
+      {checked:false, text:"xxテスト計画兼報告書", tag:""},
+      {checked:false, text:"導入手順書", tag:""},
+      {checked:false, text:"xxテスト手順書", tag:""},
+      {checked:false, text:"運用手順書", tag:""},
+      {checked:false, text:"", tag:""},
+      {checked:false, text:"", tag:""}
+    ]
+  },
+  {
+    title: "前提",
+    items: [
+      {checked:false, text:"本サービスは、お客様の業務を支援する作業として提供されるものです。", tag:""},
+      {checked:false, text:"本サービスは、 xxx 支援を行うものです。", tag:""},
+      {checked:false, text:"作業の対応時間は、平日標準勤務時間（9:00～18:00）です。", tag:""},
+      {checked:false, text:"土日祝日対応がある場合は要相談となります。", tag:""},
+      {checked:false, text:"サービスはリモートサポートとなります。", tag:""},
+      {checked:false, text:"必要な場合はオンサイトでの作業を実施します。", tag:""},
+      {checked:false, text:"作業場所は xxx を想定しています。", tag:""},
+      {checked:false, text:"プロジェクトの打ち合わせ場所は xxx で 週xx回 程度を想定しています。", tag:""},
+      {checked:false, text:"サービス期間は xxx ～ xxx を想定しています。", tag:""},
+      {checked:false, text:"対象製品に関しては保守契約を締結されていることを前提とさせていただきます。", tag:""},
+      {checked:false, text:"対象製品の障害発生時、その具体的な解決（収集資料の特定、問題解析、修正モジュールの作成、等）は、お客様からの要請によりテクニカルサポートにておこなわれます。当支援は、問題判別や資料収集、テクニカルサポートとの窓口としての役割を遂行されるお客様担当者様をお手伝いさせていただき、障害の早期解決が円滑におこなわれるための技術支援となります。", tag:""},
+      {checked:false, text:"", tag:""},
+      {checked:true, text:"お客様には、IBMが本サービスを実施するにあたり、IBMが必要とする情報を書面にて提供していただきます。", tag:"必須"},
+      {checked:true, text:"お客様には、IBMが本サービスを実施するにあたり、必要となる作業場所、付帯設備、事務消耗品および電話使用などの庶務サービス、ならびに必要なシステムや施設へのアクセスが可能な環境を提供していただきます。", tag:"必須"},
+      {checked:true, text:"お客様には、作業にともなう既存システムのデータのバックアップおよびリストアの作業を提供していただきます。（お客様が必要と判断された場合のみ）", tag:"必須"},
+      {checked:true, text:"本サービスの対象は、お客様への直接の支援に限定させていただきます。", tag:"必須"},
+      {checked:true, text:"IBMが本サービスを実施するために必要な範囲で、お客様の設備、ソフトウェア、ハードウェア、ネットワーク、および他の同様の資源をIBMおよびIBMの従契約者に使用可能にしていただく前提として、必要な全てのライセンスおよび承認はお客様にて取得して頂きます。お客様がこれらのライセンスおよび承認を遅滞なく取得することを怠ったことにより、IBMが本サービスを実施することに支障が発生した場合、その範囲でIBMは本サービスの責任を免除されるものとします。お客様がこれらのライセンスおよび承認を遅滞なく取得することを怠ったことにより、もし第三者がIBMに対して権利を主張した場合、その権利に関連してIBMが被ったコストおよび損害をお客様はIBMに対して補償することに同意いただきます。", tag:"必須"}
+    ]
+  },
+  {
+    title: "サービスの適用除外 — 全体",
+    items: [
+      {checked:false, text:"サービス終了後にお客様にて実施された作業に起因した問題の復旧作業", tag:""},
+      {checked:false, text:"他社製品の性能、機能および品質等の保証および他社製品の導入の保証", tag:""},
+      {checked:false, text:"", tag:""},
+      {checked:false, text:"", tag:""}
+    ]
+  },
+  {
+    title: "サービスの適用除外 — ソフトウェア",
+    items: [
+      {checked:false, text:"ライセンスの準備と適用作業", tag:""},
+      {checked:false, text:"仮想マシンの作成、設定作業", tag:""},
+      {checked:false, text:"OSの導入、OS修正パッケージの適用、ドライバの導入、セットアップ作業", tag:""},
+      {checked:false, text:"OS、システムソフトウェア、ファームウェア等の更新作業", tag:""},
+      {checked:false, text:"アプリケーションの導入、セキュリティパッチの適用、設定作業", tag:""},
+      {checked:false, text:"プログラムの開発・改変にかかわるサービス", tag:""},
+      {checked:false, text:"お客様によるプログラム変更に起因する障害に対するサービス", tag:""},
+      {checked:false, text:"", tag:""}
+    ]
+  },
+  {
+    title: "サービスの適用除外 — ハードウェア",
+    items: [
+      {checked:false, text:"機器搬入設置、キッティング、ラッキング、ケーブリング作業", tag:""},
+      {checked:false, text:"工事をともなう電源関連の作業、耐震工事、ネットワーク・ケーブルなどの敷設作業、ルーターなどのネットワーク構成機器の設置作業およびプリンターの設置作業", tag:""},
+      {checked:false, text:"ハードウェア障害またはデバイスドライバーの障害対応", tag:""},
+      {checked:false, text:"", tag:""}
+    ]
+  },
+  {
+    title: "サービスの適用除外 — 設計・構築",
+    items: [
+      {checked:false, text:"キャパシティー・プランニング", tag:""},
+      {checked:false, text:"スクリプト作成", tag:""},
+      {checked:false, text:"運用設計（監視設計、データ保管設計、等を含む）", tag:""},
+      {checked:false, text:"パフォーマンス・チューニング", tag:""},
+      {checked:false, text:"データ移行", tag:""},
+      {checked:false, text:"", tag:""},
+      {checked:false, text:"", tag:""}
+    ]
+  },
+  {
+    title: "サービスの適用除外 — テスト",
+    items: [
+      {checked:false, text:"単体テスト", tag:""},
+      {checked:false, text:"結合テスト", tag:""},
+      {checked:false, text:"パフォーマンステスト", tag:""},
+      {checked:false, text:"ベンチマークテスト", tag:""},
+      {checked:false, text:"負荷テスト", tag:""},
+      {checked:false, text:"", tag:""}
+    ]
+  },
+  {
+    title: "注意点",
+    items: [
+      {checked:false, text:"プロジェクトマネージメントが必要か？", tag:""},
+      {checked:false, text:"事前検証が必要か？", tag:""},
+      {checked:false, text:"土日祝日作業があるか？", tag:""},
+      {checked:false, text:"深夜作業があるか？", tag:""},
+      {checked:false, text:"構築やテスト作業を2名体制で実施する必要があるか？", tag:""},
+      {checked:false, text:"システムバックアップとリストアを設計構築する必要があるか？", tag:""},
+      {checked:false, text:"監視設計をする必要があるか？", tag:""},
+      {checked:false, text:"運用設計をする必要があるか？", tag:""},
+      {checked:false, text:"提出するドキュメントのレベルは合意してあるか？", tag:""},
+      {checked:false, text:"スクリプトを作成する必要があるか？", tag:""},
+      {checked:false, text:"パフォーマンスについて要件がないか？", tag:""},
+      {checked:false, text:"QA支援の時はお客様の要件とスキルレベルを直接会話して確認する", tag:""},
+      {checked:false, text:"", tag:""},
+      {checked:false, text:"", tag:""}
+    ]
+  }
+];
+
+const KOSU_SECTIONS_DEFAULT = [
+  {id:"pm", label:"プロジェクト管理", rows:[
+    {id:"pm1", label:"情報共有・進捗管理", hint:"チームでプロジェクトを進める場合の情報共有等"},
+    {id:"pm2", label:"契約管理", hint:"S-LINK等の契約関連の管理工数を5%程度計上する"},
+    {id:"pm3", label:"その他（PM）", hint:""},
+    {id:"pm4", label:"（予備）", hint:""},
+    {id:"pm5", label:"（予備）", hint:""}
+  ]},
+  {id:"mtg", label:"打ち合わせ", rows:[
+    {id:"mtg1", label:"定例打ち合わせ", hint:"打ち合わせ時間×人数×頻度で時間を決定する"},
+    {id:"mtg2", label:"移動時間", hint:"遠距離出張時は移動時間×0.5程度を目安に追加する"},
+    {id:"mtg3", label:"その他（打ち合わせ）", hint:""},
+    {id:"mtg4", label:"（予備）", hint:""}
+  ]},
+  {id:"design", label:"設計", rows:[
+    {id:"des1", label:"基本機能設計", hint:"お客様向け設計書の作成時間は含めない（ドキュメントに含める）"},
+    {id:"des2", label:"オプション機能設計", hint:""},
+    {id:"des3", label:"非機能設計", hint:""},
+    {id:"des4", label:"運用設計", hint:""},
+    {id:"des5", label:"（予備）", hint:""},
+    {id:"des6", label:"（予備）", hint:""},
+    {id:"des7", label:"（予備）", hint:""},
+    {id:"des8", label:"（予備）", hint:""},
+    {id:"des9", label:"（予備）", hint:""},
+    {id:"des10", label:"（予備）", hint:""},
+    {id:"des11", label:"（予備）", hint:""}
+  ]},
+  {id:"build", label:"構築", rows:[
+    {id:"bld1", label:"準備・事前検証", hint:"作業人数を確認すること"},
+    {id:"bld2", label:"基本構築", hint:"基本的な社内検証作業は含めない（必要な場合はPoCを提案する）"},
+    {id:"bld3", label:"オプション機能構築", hint:"障害対応の猶予時間は含めない"},
+    {id:"bld4", label:"非機能構築", hint:"リスクの高い作業に関してはContingencyで対応する"},
+    {id:"bld5", label:"スクリプト作成", hint:"スクリプト作成には、ローカルでの動作テストを含む"},
+    {id:"bld6", label:"移動時間（構築）", hint:"遠距離出張時は移動時間×0.5程度を目安に追加する"},
+    {id:"bld7", label:"（予備）", hint:""},
+    {id:"bld8", label:"（予備）", hint:""},
+    {id:"bld9", label:"（予備）", hint:""},
+    {id:"bld10", label:"（予備）", hint:""},
+    {id:"bld11", label:"（予備）", hint:""}
+  ]},
+  {id:"test", label:"テスト", rows:[
+    {id:"tst1", label:"テスト計画", hint:"テスト計画の立案を含むが、お客様向け計画書や報告書作成は含めない（ドキュメントに含まれる）"},
+    {id:"tst2", label:"設定確認テスト", hint:"性能要件がある場合は性能テストを実施する"},
+    {id:"tst3", label:"正常系テスト", hint:"作業人数を確認すること"},
+    {id:"tst4", label:"異常系テスト", hint:""},
+    {id:"tst5", label:"性能テスト", hint:""},
+    {id:"tst6", label:"移動時間（テスト）", hint:"遠距離出張時は移動時間×0.5程度を目安に追加する"},
+    {id:"tst7", label:"（予備）", hint:""},
+    {id:"tst8", label:"（予備）", hint:""},
+    {id:"tst9", label:"（予備）", hint:""},
+    {id:"tst10", label:"（予備）", hint:""}
+  ]},
+  {id:"handover", label:"引継ぎ", rows:[
+    {id:"hnd1", label:"引継ぎ準備", hint:"遠距離出張時は移動時間×0.5程度を目安に追加する"},
+    {id:"hnd2", label:"引継ぎ実施", hint:""},
+    {id:"hnd3", label:"（予備）", hint:""},
+    {id:"hnd4", label:"（予備）", hint:""}
+  ]},
+  {id:"doc", label:"ドキュメント", rows:[
+    {id:"doc1", label:"基本設計書", hint:"お客様向けドキュメントの作成とレビュー。ドキュメントのフォーマットとレベル感を予めお客様と確認する"},
+    {id:"doc2", label:"詳細設計書", hint:""},
+    {id:"doc3", label:"スクリプト設計書", hint:""},
+    {id:"doc4", label:"テスト計画兼報告書", hint:""},
+    {id:"doc5", label:"導入手順書", hint:""},
+    {id:"doc6", label:"テスト手順書", hint:""},
+    {id:"doc7", label:"運用手順書", hint:""},
+    {id:"doc8", label:"レビュー", hint:""},
+    {id:"doc9", label:"（予備）", hint:""},
+    {id:"doc10", label:"（予備）", hint:""}
+  ]},
+  {id:"qa", label:"QA", rows:[
+    {id:"qa1", label:"QA支援（リモート）", hint:"1回2時間のインシデント制とする。基本的に構築完了後の支援。お客様の経験が少ない場合等は積むことを推奨する。基本的にリモート支援とする"},
+    {id:"qa2", label:"QA支援（オンサイト）", hint:""},
+    {id:"qa3", label:"（予備）", hint:""},
+    {id:"qa4", label:"（予備）", hint:""}
+  ]},
+  {id:"other", label:"その他", rows:[
+    {id:"oth1", label:"（予備）", hint:""},
+    {id:"oth2", label:"（予備）", hint:""},
+    {id:"oth3", label:"（予備）", hint:""},
+    {id:"oth4", label:"（予備）", hint:""}
+  ]}
+];
+
+// TRAVEL_DEFAULT: cnt は工数シートの移動回数/宿泊数と連動
+// linkedKosuField: 'trips' = 移動回数合計に連動, 'nights' = 宿泊数合計に連動, '' = 手動
+const TRAVEL_DEFAULT = [
+  {id:"tr0", type:"交通費（記入例：大阪）", place:"", unit:"", qty:1, cnt:0, hint:"移動回数は予備として20%程度を見込むこと", linkedKosuField:"trips"},
+  {id:"tr1", type:"宿泊費（記入例：大阪）", place:"", unit:"", qty:1, cnt:0, hint:"", linkedKosuField:"nights"},
+  {id:"tr2", type:"出張手当（記入例：大阪）", place:"", unit:"", qty:1, cnt:0, hint:"宿泊回数は予備として20%程度を見込むこと", linkedKosuField:"nights"},
+  {id:"tr3", type:"記入例：PC借用費", place:"", unit:"", qty:1, cnt:1, hint:"中距離以上の出張時に必ず見積もること", linkedKosuField:""},
+  {id:"tr4", type:"その他", place:"", unit:"", qty:1, cnt:1, hint:"", linkedKosuField:""}
+];
+
+// ===================== STATE =====================
+let CHECKLIST_DATA = JSON.parse(JSON.stringify(CHECKLIST_DEFAULT));
+let KOSU_SECTIONS = JSON.parse(JSON.stringify(KOSU_SECTIONS_DEFAULT));
+let travelRows = TRAVEL_DEFAULT.map(r => ({...r}));
+let kosuData = {};
+// kosuTrips[rowId][monthIdx] = 移動回数, kosuNights[rowId][monthIdx] = 宿泊数
+let kosuTrips = {};
+let kosuNights = {};
+let _extraRowCounter = 1000;
+
+// ===================== UTILS =====================
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmt(n) {
+  return Number(n).toLocaleString('ja-JP');
+}
+
+let _toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ===================== TABS =====================
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const tabIds = ['tab-basic','tab-checklist','tab-kosu','tab-travel','tab-output','tab-changelog'];
+  const idx = tabIds.indexOf(id);
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+}
+
+function toggleCard(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('hidden');
+  header.classList.toggle('collapsed');
+}
+
+// ===================== PERIOD / MONTHS =====================
+function getMonthLabels() {
+  const n = parseInt(document.getElementById('period-months').value) || 12;
+  let y = parseInt(document.getElementById('start-year').value) || 2026;
+  let m = parseInt(document.getElementById('start-month').value) || 4;
+  const result = [];
+  for (let i = 0; i < n; i++) {
+    result.push({y, m, label: y + '/' + String(m).padStart(2,'0')});
+    m++;
+    if (m > 12) { m = 1; y++; }
+  }
+  return result;
+}
+
+// ===================== KOSU DATA =====================
+function initKosuData() {
+  KOSU_SECTIONS.forEach(sec => {
+    sec.rows.forEach(row => {
+      if (!kosuData[row.id]) {
+        kosuData[row.id] = {label: row.label, hint: row.hint, values: new Array(60).fill(0)};
+      }
+      if (!kosuTrips[row.id]) kosuTrips[row.id] = new Array(60).fill(0);
+      if (!kosuNights[row.id]) kosuNights[row.id] = new Array(60).fill(0);
+    });
+  });
+}
+
+function buildKosuTable() {
+  initKosuData();
+  renderKosuTable(getMonthLabels());
+}
+
+function rebuildKosuMonths() {
+  renderKosuTable(getMonthLabels());
+  recalcAll();
+}
+
+function renderKosuTable(months) {
+  const n = months.length;
+  const wrap = document.getElementById('kosu-table-wrap');
+  let h = '<div class="bg-row np"><button class="btn bp bsm np" onclick="addKosuMonths()">＋ 月を追加</button><button class="btn bs bsm np" onclick="removeKosuMonth()">－ 月を削除</button></div>';
+  h += '<div class="tbl-wrap"><table><thead><tr>';
+  h += '<th style="min-width:160px;position:sticky;left:0;z-index:5">作業項目</th>';
+  h += '<th style="min-width:160px;resize:horizontal;overflow:hidden">見積もり方針</th>';
+  months.forEach((ml, mi) => {
+    const mc = (mi % 2 === 0) ? 'kosu-month-odd' : 'kosu-month-even';
+    h += '<th class="' + mc + '" colspan="3" style="text-align:center">' + escHtml(ml.label) + '<br><span style="font-size:10px;font-weight:400">工数(h) / 移動 / 宿泊</span></th>';
+  });
+  h += '<th style="background:#d6eaf8;color:#0c4a6e">合計(h)</th>';
+  h += '<th style="background:#e8f7ef;color:#065f46;min-width:50px">移動計</th>';
+  h += '<th style="background:#fef9e7;color:#78350f;min-width:50px">宿泊計</th>';
+  h += '<th class="np"></th>';
+  h += '</tr></thead><tbody>';
+
+  KOSU_SECTIONS.forEach(sec => {
+    h += '<tr>';
+    h += '<td colspan="2" class="sh" style="position:sticky;left:0;z-index:1">';
+    h += escHtml(sec.label);
+    h += ' <button class="btn bp bsm np" style="margin-left:6px" onclick="addKosuRow(\'' + sec.id + '\')">＋</button>';
+    h += ' <button class="btn bd bsm np" style="margin-left:2px" onclick="deleteKosuSection(\'' + sec.id + '\')">✕ 区分削除</button>';
+    h += '</td>';
+    for (let mi = 0; mi < n; mi++) {
+      const mc = (mi % 2 === 0) ? 'kosu-month-odd' : 'kosu-month-even';
+      h += '<td class="tc ' + mc + '" id="sec-month-' + sec.id + '-' + mi + '" colspan="3">0</td>';
+    }
+    h += '<td class="tc" id="sec-total-' + sec.id + '">0</td>';
+    h += '<td class="tc" style="background:#e8f7ef;color:#065f46" id="sec-trips-' + sec.id + '">0</td>';
+    h += '<td class="tc" style="background:#fef9e7;color:#78350f" id="sec-nights-' + sec.id + '">0</td>';
+    h += '<td class="np"></td>';
+    h += '</tr>';
+
+    sec.rows.forEach(row => {
+      const d = kosuData[row.id] || {label: row.label, hint: row.hint, values: new Array(60).fill(0)};
+      const trips = kosuTrips[row.id] || new Array(60).fill(0);
+      const nights = kosuNights[row.id] || new Array(60).fill(0);
+      h += '<tr>';
+      h += '<td style="position:sticky;left:0;z-index:1;background:#fff;text-align:left;padding:3px 5px">';
+      h += '<input type="text" class="w" value="' + escHtml(d.label) + '" onchange="kosuData[\'' + row.id + '\'].label=this.value">';
+      h += '</td>';
+      h += '<td style="text-align:left;padding:3px 5px"><input type="text" class="w" style="min-width:150px" value="' + escHtml(d.hint) + '" onchange="kosuData[\'' + row.id + '\'].hint=this.value"></td>';
+      for (let mi = 0; mi < n; mi++) {
+        const v = d.values[mi] || 0;
+        const tr = trips[mi] || 0;
+        const ni = nights[mi] || 0;
+        const mc = (mi % 2 === 0) ? 'kosu-month-odd' : 'kosu-month-even';
+        h += '<td class="' + mc + '" style="padding:2px 3px"><input type="number" step="0.5" min="0" value="' + v + '" style="min-width:44px" oninput="onKosuInput(\'' + row.id + '\',' + mi + ',this.value)"></td>';
+        h += '<td class="' + mc + '" style="padding:2px 3px;background:rgba(16,185,129,.08)"><input type="number" step="1" min="0" value="' + tr + '" style="min-width:38px;background:transparent" title="移動回数" oninput="onKosuTripsInput(\'' + row.id + '\',' + mi + ',this.value)"></td>';
+        h += '<td class="' + mc + '" style="padding:2px 3px;background:rgba(245,158,11,.08)"><input type="number" step="1" min="0" value="' + ni + '" style="min-width:38px;background:transparent" title="宿泊数" oninput="onKosuNightsInput(\'' + row.id + '\',' + mi + ',this.value)"></td>';
+      }
+      h += '<td class="st" id="row-total-' + row.id + '">0</td>';
+      h += '<td style="background:#e8f7ef;color:#065f46;font-weight:700" id="row-trips-' + row.id + '">0</td>';
+      h += '<td style="background:#fef9e7;color:#78350f;font-weight:700" id="row-nights-' + row.id + '">0</td>';
+      h += '<td class="np"><button class="btn bp bsm np" style="margin-right:2px" onclick="addKosuRowAfter(\'' + row.id + '\',\'' + sec.id + '\')">＋</button><button class="btn bd bsm np" onclick="deleteKosuRow(\'' + row.id + '\',\'' + sec.id + '\')">✕</button></td>';
+      h += '</tr>';
+    });
+  });
+
+  h += '<tr>';
+  h += '<td colspan="2" style="text-align:right;font-weight:700;background:#cfe2f3;color:#0c3566">合計</td>';
+  for (let mi = 0; mi < n; mi++) {
+    const mc = (mi % 2 === 0) ? 'kosu-month-odd' : 'kosu-month-even';
+    h += '<td class="gt ' + mc + '" id="grand-month-' + mi + '" colspan="3">0</td>';
+  }
+  h += '<td class="gt" id="grand-total-h">0</td>';
+  h += '<td style="background:#c6f6d5;font-weight:700;color:#065f46" id="grand-total-trips">0</td>';
+  h += '<td style="background:#fef3c7;font-weight:700;color:#78350f" id="grand-total-nights">0</td>';
+  h += '<td class="np"></td>';
+  h += '</tr>';
+
+  h += '</tbody></table></div>';
+  wrap.innerHTML = h;
+  recalcKosu(n);
+}
+
+function sumRow(rid, n) {
+  const d = kosuData[rid];
+  if (!d) return 0;
+  let s = 0;
+  for (let i = 0; i < n; i++) s += (parseFloat(d.values[i]) || 0);
+  return s;
+}
+
+function sumTripsRow(rid, n) {
+  const d = kosuTrips[rid];
+  if (!d) return 0;
+  let s = 0;
+  for (let i = 0; i < n; i++) s += (parseFloat(d[i]) || 0);
+  return s;
+}
+
+function sumNightsRow(rid, n) {
+  const d = kosuNights[rid];
+  if (!d) return 0;
+  let s = 0;
+  for (let i = 0; i < n; i++) s += (parseFloat(d[i]) || 0);
+  return s;
+}
+
+function getSectionMonthTotal(sec, n, mIdx) {
+  let s = 0;
+  sec.rows.forEach(row => { s += parseFloat((kosuData[row.id] || {values:[]}).values[mIdx] || 0); });
+  return s;
+}
+
+function getGrandMonthTotal(n, mIdx) {
+  let s = 0;
+  KOSU_SECTIONS.forEach(sec => { s += getSectionMonthTotal(sec, n, mIdx); });
+  return s;
+}
+
+function recalcKosu(n) {
+  if (!n) n = getMonthLabels().length;
+  let grandH = 0;
+  let grandTrips = 0;
+  let grandNights = 0;
+
+  KOSU_SECTIONS.forEach(sec => {
+    let secTotal = 0;
+    let secTrips = 0;
+    let secNights = 0;
+    sec.rows.forEach(row => {
+      const rTotal = sumRow(row.id, n);
+      const rTrips = sumTripsRow(row.id, n);
+      const rNights = sumNightsRow(row.id, n);
+      const el = document.getElementById('row-total-' + row.id);
+      if (el) el.textContent = rTotal % 1 === 0 ? rTotal : rTotal.toFixed(1);
+      const te = document.getElementById('row-trips-' + row.id);
+      if (te) te.textContent = rTrips;
+      const ne = document.getElementById('row-nights-' + row.id);
+      if (ne) ne.textContent = rNights;
+      secTotal += rTotal;
+      secTrips += rTrips;
+      secNights += rNights;
+    });
+    const stEl = document.getElementById('sec-total-' + sec.id);
+    if (stEl) stEl.textContent = secTotal % 1 === 0 ? secTotal : secTotal.toFixed(1);
+    const stTr = document.getElementById('sec-trips-' + sec.id);
+    if (stTr) stTr.textContent = secTrips;
+    const stNi = document.getElementById('sec-nights-' + sec.id);
+    if (stNi) stNi.textContent = secNights;
+    for (let mi = 0; mi < n; mi++) {
+      const smEl = document.getElementById('sec-month-' + sec.id + '-' + mi);
+      if (smEl) {
+        const v = getSectionMonthTotal(sec, n, mi);
+        smEl.textContent = v % 1 === 0 ? v : v.toFixed(1);
+      }
+    }
+    grandH += secTotal;
+    grandTrips += secTrips;
+    grandNights += secNights;
+  });
+
+  for (let mi = 0; mi < n; mi++) {
+    const gmEl = document.getElementById('grand-month-' + mi);
+    if (gmEl) {
+      const v = getGrandMonthTotal(n, mi);
+      gmEl.textContent = v % 1 === 0 ? v : v.toFixed(1);
+    }
+  }
+  const gtEl = document.getElementById('grand-total-h');
+  if (gtEl) gtEl.textContent = grandH % 1 === 0 ? grandH : grandH.toFixed(1);
+  const gtTrips = document.getElementById('grand-total-trips');
+  if (gtTrips) gtTrips.textContent = grandTrips;
+  const gtNights = document.getElementById('grand-total-nights');
+  if (gtNights) gtNights.textContent = grandNights;
+
+  // summary bar
+  const khEl = document.getElementById('kosu-total-h');
+  if (khEl) khEl.textContent = grandH % 1 === 0 ? grandH : grandH.toFixed(1);
+  const rate = parseFloat(document.getElementById('labor-rate').value) || 0;
+  const kcEl = document.getElementById('kosu-total-cost');
+  if (kcEl) kcEl.textContent = '¥' + fmt(Math.round(grandH * rate));
+  const ktEl = document.getElementById('kosu-total-trips');
+  if (ktEl) ktEl.textContent = grandTrips;
+  const knEl = document.getElementById('kosu-total-nights');
+  if (knEl) knEl.textContent = grandNights;
+
+  // ── 工数 → 交通費 連動 ──
+  syncTravelFromKosu(grandTrips, grandNights);
+
+  return grandH;
+}
+
+// 工数シートの移動回数・宿泊数を交通費タブの対応行（linkedKosuField）へ反映
+function syncTravelFromKosu(totalTrips, totalNights) {
+  travelRows.forEach(r => {
+    if (r.linkedKosuField === 'trips') {
+      r.cnt = totalTrips;
+      const el = document.querySelector('#trow-' + r.id + ' td:nth-child(5) input');
+      if (el) el.value = totalTrips;
+    } else if (r.linkedKosuField === 'nights') {
+      r.cnt = totalNights;
+      const el = document.querySelector('#trow-' + r.id + ' td:nth-child(5) input');
+      if (el) el.value = totalNights;
+    }
+  });
+  recalcTravel();
+}
+
+function onKosuInput(rid, idx, val) {
+  if (!kosuData[rid]) kosuData[rid] = {label:'', hint:'', values: new Array(60).fill(0)};
+  kosuData[rid].values[idx] = parseFloat(val) || 0;
+  const n = getMonthLabels().length;
+  recalcKosu(n);
+  recalcAll();
+}
+
+function onKosuTripsInput(rid, idx, val) {
+  if (!kosuTrips[rid]) kosuTrips[rid] = new Array(60).fill(0);
+  kosuTrips[rid][idx] = parseFloat(val) || 0;
+  const n = getMonthLabels().length;
+  recalcKosu(n);
+  recalcAll();
+}
+
+function onKosuNightsInput(rid, idx, val) {
+  if (!kosuNights[rid]) kosuNights[rid] = new Array(60).fill(0);
+  kosuNights[rid][idx] = parseFloat(val) || 0;
+  const n = getMonthLabels().length;
+  recalcKosu(n);
+  recalcAll();
+}
+
+function addKosuRow(secId) {
+  const sec = KOSU_SECTIONS.find(s => s.id === secId);
+  if (!sec) return;
+  const newId = 'extra_' + secId + '_' + (_extraRowCounter++);
+  sec.rows.push({id: newId, label:'（新規）', hint:''});
+  kosuData[newId] = {label:'（新規）', hint:'', values: new Array(60).fill(0)};
+  kosuTrips[newId] = new Array(60).fill(0);
+  kosuNights[newId] = new Array(60).fill(0);
+  rebuildKosuMonths();
+}
+
+function addKosuRowAfter(afterRowId, secId) {
+  const sec = KOSU_SECTIONS.find(s => s.id === secId);
+  if (!sec) return;
+  const newId = 'extra_' + secId + '_' + (_extraRowCounter++);
+  const idx = sec.rows.findIndex(r => r.id === afterRowId);
+  if (idx === -1) {
+    sec.rows.push({id: newId, label:'（新規）', hint:''});
+  } else {
+    sec.rows.splice(idx + 1, 0, {id: newId, label:'（新規）', hint:''});
+  }
+  kosuData[newId] = {label:'（新規）', hint:'', values: new Array(60).fill(0)};
+  kosuTrips[newId] = new Array(60).fill(0);
+  kosuNights[newId] = new Array(60).fill(0);
+  rebuildKosuMonths();
+}
+
+function deleteKosuRow(rid, secId) {
+  const sec = KOSU_SECTIONS.find(s => s.id === secId);
+  if (sec) sec.rows = sec.rows.filter(r => r.id !== rid);
+  delete kosuData[rid];
+  delete kosuTrips[rid];
+  delete kosuNights[rid];
+  rebuildKosuMonths();
+}
+
+function deleteKosuSection(secId) {
+  const sec = KOSU_SECTIONS.find(s => s.id === secId);
+  if (sec) {
+    sec.rows.forEach(row => {
+      delete kosuData[row.id];
+      delete kosuTrips[row.id];
+      delete kosuNights[row.id];
+    });
+  }
+  KOSU_SECTIONS = KOSU_SECTIONS.filter(s => s.id !== secId);
+  rebuildKosuMonths();
+}
+
+function addKosuMonths() {
+  const el = document.getElementById('period-months');
+  el.value = (parseInt(el.value) || 12) + 1;
+  rebuildKosuMonths();
+}
+
+function removeKosuMonth() {
+  const el = document.getElementById('period-months');
+  const cur = parseInt(el.value) || 12;
+  if (cur > 1) { el.value = cur - 1; rebuildKosuMonths(); }
+}
+
+// ===================== CHECKLIST =====================
+let CHECKLIST_DATA_REF = null;
+
+function buildChecklist() {
+  const container = document.getElementById('checklist-sections');
+  container.innerHTML = '';
+  CHECKLIST_DATA.forEach((sec, si) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = '<div class="card-header" onclick="toggleCard(this)"><h3>' + escHtml(sec.title) + '</h3><span class="ti">▼</span></div>' +
+      '<div class="card-body"><div class="bg-row np"><button class="btn bp bsm np" onclick="addChecklistRow(' + si + ')">＋ 行を追加</button></div>' +
+      '<div class="tbl-wrap"><table class="ctbl"><thead><tr><th style="width:30px">✓</th><th>内容</th><th style="width:60px">タグ</th><th class="np" style="width:30px"></th></tr></thead>' +
+      '<tbody id="cl-tbody-' + si + '">' + sec.items.map((item, ii) => checklistRowHtml(si, ii, item)).join('') + '</tbody></table></div></div>';
+    container.appendChild(card);
+  });
+}
+
+function checklistRowHtml(si, ii, item) {
+  const chk = item.checked ? 'checked' : '';
+  const tagHtml = item.tag ? ' <span class="req" style="float:right;margin-top:2px">' + escHtml(item.tag) + '</span>' : '';
+  return '<tr>' +
+    '<td style="text-align:center"><input type="checkbox" ' + chk + ' onchange="CHECKLIST_DATA[' + si + '].items[' + ii + '].checked=this.checked"></td>' +
+    '<td style="display:flex;align-items:center;gap:4px"><input type="text" style="flex:1" value="' + escHtml(item.text) + '" oninput="CHECKLIST_DATA[' + si + '].items[' + ii + '].text=this.value">' + tagHtml + '</td>' +
+    '<td><input type="text" value="' + escHtml(item.tag) + '" oninput="CHECKLIST_DATA[' + si + '].items[' + ii + '].tag=this.value" placeholder="タグ"></td>' +
+    '<td class="np"><button class="btn bd bsm np" onclick="deleteChecklistRow(' + si + ',' + ii + ')">✕</button></td>' +
+    '</tr>';
+}
+
+function addChecklistRow(si) {
+  const sec = CHECKLIST_DATA[si];
+  const firstReqIdx = sec.items.findIndex(item => item.tag === '必須');
+  if (firstReqIdx !== -1) {
+    sec.items.splice(firstReqIdx, 0, {checked:false, text:'', tag:''});
+  } else {
+    sec.items.push({checked:false, text:'', tag:''});
+  }
+  rebuildChecklistSection(si);
+}
+
+function deleteChecklistRow(si, ii) {
+  CHECKLIST_DATA[si].items.splice(ii, 1);
+  rebuildChecklistSection(si);
+}
+
+function rebuildChecklistSection(si) {
+  const tbody = document.getElementById('cl-tbody-' + si);
+  if (!tbody) return;
+  tbody.innerHTML = CHECKLIST_DATA[si].items.map((item, ii) => checklistRowHtml(si, ii, item)).join('');
+}
+
+// ===================== TRAVEL =====================
+let _travelCounter = 100;
+
+function buildTravelTable() {
+  const tbody = document.getElementById('travel-tbody');
+  tbody.innerHTML = travelRows.map(r => travelRowHtml(r)).join('');
+  recalcTravel();
+}
+
+function travelRowHtml(r) {
+  const linkedBadge = r.linkedKosuField === 'trips'
+    ? ' <span style="font-size:9px;background:#d1fae5;color:#065f46;border-radius:4px;padding:1px 4px;margin-left:2px">→移動</span>'
+    : r.linkedKosuField === 'nights'
+    ? ' <span style="font-size:9px;background:#fef3c7;color:#78350f;border-radius:4px;padding:1px 4px;margin-left:2px">→宿泊</span>'
+    : '';
+  const cntDisabled = r.linkedKosuField ? ' readonly style="background:#f0fdf4;border-color:#6ee7b7;min-width:55px;text-align:right"' : '';
+  return '<tr id="trow-' + r.id + '">' +
+    '<td><input type="text" class="w" value="' + escHtml(r.type) + '" oninput="updateTravel(\'' + r.id + '\',\'type\',this.value)">' + linkedBadge + '</td>' +
+    '<td><input type="text" style="min-width:70px" value="' + escHtml(r.place) + '" oninput="updateTravel(\'' + r.id + '\',\'place\',this.value)"></td>' +
+    '<td><input type="number" min="0" value="' + escHtml(r.unit) + '" oninput="updateTravel(\'' + r.id + '\',\'unit\',this.value)"></td>' +
+    '<td><input type="number" min="1" value="' + escHtml(r.qty) + '" oninput="updateTravel(\'' + r.id + '\',\'qty\',this.value)"></td>' +
+    '<td><input type="number" min="0" value="' + escHtml(r.cnt) + '"' + cntDisabled + ' oninput="updateTravel(\'' + r.id + '\',\'cnt\',this.value)"></td>' +
+    '<td id="travel-total-' + r.id + '" style="font-weight:700">¥0</td>' +
+    '<td><input type="text" class="w" value="' + escHtml(r.hint) + '" oninput="updateTravel(\'' + r.id + '\',\'hint\',this.value)"></td>' +
+    '<td class="np"><button class="btn bd bsm np" onclick="deleteTravelRow(\'' + r.id + '\')">✕</button></td>' +
+    '</tr>';
+}
+
+function updateTravel(rid, field, val) {
+  const r = travelRows.find(x => x.id === rid);
+  if (!r) return;
+  if (field === 'unit' || field === 'qty' || field === 'cnt') r[field] = parseFloat(val) || 0;
+  else r[field] = val;
+  recalcTravel();
+}
+
+function recalcTravel() {
+  let grand = 0;
+  travelRows.forEach(r => {
+    const total = (parseFloat(r.unit)||0) * (parseFloat(r.qty)||0) * (parseFloat(r.cnt)||0);
+    const el = document.getElementById('travel-total-' + r.id);
+    if (el) el.textContent = '¥' + fmt(total);
+    grand += total;
+  });
+  const gtEl = document.getElementById('travel-grand-total');
+  if (gtEl) gtEl.textContent = '¥' + fmt(grand);
+  return grand;
+}
+
+function addTravelRow() {
+  const newId = 'tr' + (_travelCounter++);
+  const r = {id: newId, type:'', place:'', unit:'', qty:1, cnt:1, hint:'', linkedKosuField:''};
+  travelRows.push(r);
+  const tbody = document.getElementById('travel-tbody');
+  tbody.innerHTML = travelRows.map(x => travelRowHtml(x)).join('');
+  recalcTravel();
+}
+
+function deleteTravelRow(rid) {
+  travelRows = travelRows.filter(r => r.id !== rid);
+  const tbody = document.getElementById('travel-tbody');
+  tbody.innerHTML = travelRows.map(r => travelRowHtml(r)).join('');
+  recalcTravel();
+  recalcAll();
+}
+
+// ===================== RECALC ALL =====================
+function recalcAll() {
+  const n = getMonthLabels().length;
+  const grandH = recalcKosu(n);
+  const travelGrand = recalcTravel();
+
+  const rate = parseFloat(document.getElementById('labor-rate').value) || 0;
+  const contRate = parseFloat(document.getElementById('contingency').value) || 0;
+  const gpRate = parseFloat(document.getElementById('gp').value) || 0;
+  const isDou = document.getElementById('is-dou').value === 'true';
+
+  const laborCost = grandH * rate;
+  const baseCost = laborCost + travelGrand;
+  const contCost = isDou ? 0 : baseCost * contRate;
+  const gpBase = baseCost + contCost;
+  const gpCost = isDou ? 0 : gpBase * gpRate / (1 - gpRate);
+  const total = gpBase + gpCost;
+  const ruEl = document.getElementById('rounding-unit');
+  const ru = ruEl ? (parseInt(ruEl.value) || 0) : 0;
+  const totalRd = ru > 0 ? Math.ceil(total / ru) * ru : Math.round(total);
+
+  document.getElementById('sum-hours').textContent = grandH % 1 === 0 ? grandH : grandH.toFixed(1);
+  document.getElementById('sum-labor').textContent = '¥' + fmt(Math.round(laborCost));
+  document.getElementById('sum-other').textContent = '¥' + fmt(Math.round(travelGrand));
+  document.getElementById('sum-cont').textContent = isDou ? '—（eDOU）' : '¥' + fmt(Math.round(contCost));
+  document.getElementById('sum-gp-val').textContent = isDou ? '—（eDOU）' : '¥' + fmt(Math.round(gpCost));
+  document.getElementById('sum-total').textContent = '¥' + fmt(totalRd);
+
+  const contLabel = isDou ? '—（eDOU）' : '¥' + fmt(Math.round(contCost));
+  const gpLabel   = isDou ? '—（eDOU）' : '¥' + fmt(Math.round(gpCost));
+  const pdLabor = document.getElementById('pd-labor');   if (pdLabor)   pdLabor.textContent   = '¥' + fmt(Math.round(laborCost));
+  const pdOther = document.getElementById('pd-other');   if (pdOther)   pdOther.textContent   = '¥' + fmt(Math.round(travelGrand));
+  const pdCont  = document.getElementById('pd-cont');    if (pdCont)    pdCont.textContent    = contLabel;
+  const pdGp    = document.getElementById('pd-gp');      if (pdGp)      pdGp.textContent      = gpLabel;
+  const pdTotal = document.getElementById('pd-total');   if (pdTotal)   pdTotal.textContent   = '¥' + fmt(Math.round(total));
+  const pdRound = document.getElementById('pd-rounded'); if (pdRound)   pdRound.textContent   = '¥' + fmt(totalRd);
+}
+
+function syncBasicInfo() { recalcAll(); }
+
+// ===================== OUTPUT GENERATION =====================
+function generateOutput(mode) {
+  const area = document.getElementById('output-area');
+  area.innerHTML = '';
+  if (mode === 'both' || mode === 'premise') area.appendChild(buildPremiseSheet());
+  if (mode === 'both' || mode === 'quote') {
+    area.appendChild(buildKosuSheet());
+    area.appendChild(buildTravelSheet());
+    area.appendChild(buildPriceSheet());
+  }
+}
+
+function makeSheetBlock(title, bodyHtml) {
+  const div = document.createElement('div');
+  div.className = 'sheet-block od';
+  div.innerHTML = '<div class="sheet-header"><strong>' + escHtml(title) + '</strong>' +
+    '<button class="sheet-del btn bd bsm np" onclick="this.closest(\'.sheet-block\').remove()">このシートを削除</button></div>' +
+    '<div class="sheet-body">' + bodyHtml + '</div>';
+  return div;
+}
+
+function buildPremiseSheet() {
+  let html = '';
+  CHECKLIST_DATA.forEach((sec, si) => {
+    const checkedItems = sec.items.filter(item => item.checked && item.text.trim() !== '');
+    if (checkedItems.length === 0) return;
+    html += '<div class="sec-block" style="margin-bottom:12px">';
+    html += '<h3 contenteditable="true">' + escHtml(sec.title) +
+      '<button class="sec-del np" onclick="this.closest(\'.sec-block\').remove()">✕ セクション削除</button></h3>';
+    html += '<ul>';
+    checkedItems.forEach(item => {
+      const tagHtml = item.tag ? '<span class="req">' + escHtml(item.tag) + '</span>' : '';
+      html += '<li><span class="lt" contenteditable="true">' + escHtml(item.text) + '</span>' + tagHtml +
+        '<button class="del-btn np" onclick="this.closest(\'li\').remove()">✕</button></li>';
+    });
+    html += '</ul></div>';
+  });
+  if (!html) html = '<p style="color:#57606a">チェックされた項目がありません。</p>';
+  return makeSheetBlock('前提・適用範囲シート', html);
+}
+
+function buildKosuSheet() {
+  const months = getMonthLabels();
+  const n = months.length;
+  let html = '<h2 contenteditable="true">工数詳細</h2>';
+  html += '<div style="overflow-x:auto"><table><thead><tr>';
+  html += '<th>区分</th><th>作業項目</th>';
+  months.forEach(ml => { html += '<th>' + escHtml(ml.label) + '</th>'; });
+  html += '<th style="background:#e0f2fe;color:#0c4a6e">合計(h)</th>';
+  html += '<th class="np"></th>';
+  html += '</tr></thead><tbody id="out-kosu-tbody">';
+
+  let grandH = 0;
+  const grandMonths = new Array(n).fill(0);
+
+  KOSU_SECTIONS.forEach(sec => {
+    let secTotal = 0;
+    const secMonths = new Array(n).fill(0);
+    const subRows = [];
+
+    sec.rows.forEach(row => {
+      const d = kosuData[row.id];
+      if (!d) return;
+      const rowTotal = sumRow(row.id, n);
+      if (rowTotal === 0) return;
+      const rowMonths = [];
+      for (let mi = 0; mi < n; mi++) {
+        const v = parseFloat(d.values[mi]) || 0;
+        rowMonths.push(v);
+        secMonths[mi] += v;
+        grandMonths[mi] += v;
+      }
+      secTotal += rowTotal;
+      grandH += rowTotal;
+      subRows.push({label: d.label, rowMonths, rowTotal});
+    });
+
+    if (secTotal === 0) return;
+
+    html += '<tr style="background:#e8edf5;font-weight:700;color:#1a56a0">';
+    html += '<td colspan="2">' + escHtml(sec.label) + '</td>';
+    secMonths.forEach(v => { html += '<td>' + (v % 1 === 0 ? v : v.toFixed(1)) + '</td>'; });
+    html += '<td>' + (secTotal % 1 === 0 ? secTotal : secTotal.toFixed(1)) + '</td>';
+    html += '<td class="np"><button class="del-btn np" onclick="deleteOutputSection(this)">✕ 区分削除</button></td>';
+    html += '</tr>';
+
+    subRows.forEach(sr => {
+      html += '<tr>';
+      html += '<td></td>';
+      html += '<td contenteditable="true" style="text-align:left">' + escHtml(sr.label) + '</td>';
+      sr.rowMonths.forEach(v => { html += '<td contenteditable="true">' + (v % 1 === 0 ? v : v.toFixed(1)) + '</td>'; });
+      html += '<td>' + (sr.rowTotal % 1 === 0 ? sr.rowTotal : sr.rowTotal.toFixed(1)) + '</td>';
+      html += '<td class="np"><button class="del-btn np" onclick="this.closest(\'tr\').remove()">✕</button></td>';
+      html += '</tr>';
+    });
+  });
+
+  html += '<tr style="background:#fef3c7;font-weight:700;color:#78350f">';
+  html += '<td colspan="2" style="text-align:right">合計</td>';
+  grandMonths.forEach(v => { html += '<td>' + (v % 1 === 0 ? v : v.toFixed(1)) + '</td>'; });
+  html += '<td>' + (grandH % 1 === 0 ? grandH : grandH.toFixed(1)) + '</td>';
+  html += '<td class="np"></td>';
+  html += '</tr>';
+
+  html += '</tbody></table></div>';
+  return makeSheetBlock('工数詳細シート', html);
+}
+
+function buildTravelSheet() {
+  let html = '<h2 contenteditable="true">その他費用詳細</h2>';
+  html += '<div style="overflow-x:auto"><table id="out-travel-table"><thead><tr>';
+  html += '<th>費用種別</th><th>場所</th><th>単価（円）</th><th>人数</th><th>回数</th><th>合計（円）</th><th class="np"></th>';
+  html += '</tr></thead><tbody id="out-travel-tbody">';
+
+  let grand = 0;
+  travelRows.forEach(r => {
+    const total = (parseFloat(r.unit)||0) * (parseFloat(r.qty)||0) * (parseFloat(r.cnt)||0);
+    grand += total;
+    html += '<tr>';
+    html += '<td contenteditable="true" style="text-align:left">' + escHtml(r.type) + '</td>';
+    html += '<td contenteditable="true">' + escHtml(r.place) + '</td>';
+    html += '<td contenteditable="true" style="text-align:right">' + escHtml(String(r.unit)) + '</td>';
+    html += '<td contenteditable="true" style="text-align:right">' + escHtml(String(r.qty)) + '</td>';
+    html += '<td contenteditable="true" style="text-align:right">' + escHtml(String(r.cnt)) + '</td>';
+    html += '<td style="font-weight:700;text-align:right">¥' + fmt(total) + '</td>';
+    html += '<td class="np"><button class="del-btn np" onclick="this.closest(\'tr\').remove()">✕</button></td>';
+    html += '</tr>';
+  });
+
+  html += '<tr style="background:#fef3c7;font-weight:700"><td colspan="5" style="text-align:right">その他費用合計</td>';
+  html += '<td style="text-align:right">¥' + fmt(grand) + '</td><td class="np"></td></tr>';
+  html += '</tbody></table></div>';
+  html += '<button class="btn bp bsm np" style="margin-top:8px" onclick="addOutputTravelRow(this)">＋ 行を追加</button>';
+  return makeSheetBlock('その他費用シート', html);
+}
+
+function buildPriceSheet() {
+  const n = getMonthLabels().length;
+  let grandH = 0;
+  KOSU_SECTIONS.forEach(sec => { sec.rows.forEach(row => { grandH += sumRow(row.id, n); }); });
+
+  const rate = parseFloat(document.getElementById('labor-rate').value) || 0;
+  const contRate = parseFloat(document.getElementById('contingency').value) || 0;
+  const gpRate = parseFloat(document.getElementById('gp').value) || 0;
+  const isDou = document.getElementById('is-dou').value === 'true';
+
+  let travelGrand = 0;
+  travelRows.forEach(r => { travelGrand += (parseFloat(r.unit)||0)*(parseFloat(r.qty)||0)*(parseFloat(r.cnt)||0); });
+
+  const laborCost = grandH * rate;
+  const baseCost = laborCost + travelGrand;
+  const contCost = isDou ? 0 : baseCost * contRate;
+  const gpBase = baseCost + contCost;
+  const gpCost = isDou ? 0 : gpBase * gpRate / (1 - gpRate);
+  const total = gpBase + gpCost;
+  const ruEl = document.getElementById('rounding-unit');
+  const ru = ruEl ? (parseInt(ruEl.value) || 0) : 0;
+  const totalRd = ru > 0 ? Math.ceil(total / ru) * ru : Math.round(total);
+
+  const contLabel = isDou ? '—（eDOU契約）' : '¥' + fmt(Math.round(contCost));
+  const gpLabel = isDou ? '—（eDOU契約）' : '¥' + fmt(Math.round(gpCost));
+
+  let html = '<h2 contenteditable="true">価格詳細</h2>';
+  html += '<table style="max-width:440px"><thead><tr><th>項目</th><th>金額（円）</th><th class="np"></th></tr></thead><tbody>';
+  html += '<tr><td contenteditable="true" style="text-align:left">Labor コスト（' + (grandH%1===0?grandH:grandH.toFixed(1)) + 'h × ¥' + fmt(rate) + '/h）</td>' +
+    '<td contenteditable="true" style="text-align:right">¥' + fmt(Math.round(laborCost)) + '</td>' +
+    '<td class="np"><button class="del-btn np" onclick="this.closest(\'tr\').remove()">✕</button></td></tr>';
+  html += '<tr><td contenteditable="true" style="text-align:left">その他費用</td>' +
+    '<td contenteditable="true" style="text-align:right">¥' + fmt(Math.round(travelGrand)) + '</td>' +
+    '<td class="np"><button class="del-btn np" onclick="this.closest(\'tr\').remove()">✕</button></td></tr>';
+  html += '<tr><td contenteditable="true" style="text-align:left">Contingency（' + Math.round(contRate*100) + '%）</td>' +
+    '<td contenteditable="true" style="text-align:right">' + contLabel + '</td>' +
+    '<td class="np"><button class="del-btn np" onclick="this.closest(\'tr\').remove()">✕</button></td></tr>';
+  html += '<tr><td contenteditable="true" style="text-align:left">GP（' + Math.round(gpRate*100) + '%）</td>' +
+    '<td contenteditable="true" style="text-align:right">' + gpLabel + '</td>' +
+    '<td class="np"><button class="del-btn np" onclick="this.closest(\'tr\').remove()">✕</button></td></tr>';
+  html += '<tr style="background:#fef3c7;font-weight:700"><td contenteditable="true" style="text-align:left">参考見積もり額</td>' +
+    '<td contenteditable="true" style="text-align:right">¥' + fmt(totalRd) + '</td>' +
+    '<td class="np"></td></tr>';
+  html += '</tbody></table>';
+  return makeSheetBlock('価格詳細シート', html);
+}
+
+// ===================== お客様提出用 OUTPUT =====================
+function printCustomerOutput() {
+  const coArea = document.getElementById('customer-output-area');
+  if (!coArea || coArea.children.length === 0) {
+    showToast('先に「お客様提出用」ボタンで出力を生成してください');
+    return;
+  }
+  const printWrap = document.createElement('div');
+  printWrap.id = 'co-print-wrap';
+  printWrap.style.cssText = 'font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;font-size:13px;color:#1a2b45';
+  const children = Array.from(coArea.children);
+  children.forEach(c => printWrap.appendChild(c));
+  document.body.appendChild(printWrap);
+  document.body.classList.add('print-customer');
+  window.print();
+  document.body.classList.remove('print-customer');
+  Array.from(printWrap.children).forEach(c => coArea.appendChild(c));
+  document.body.removeChild(printWrap);
+}
+
+function generateCustomerOutput() {
+  recalcAll();
+  const area = document.getElementById('output-area');
+  area.innerHTML = '';
+
+  let coArea = document.getElementById('customer-output-area');
+  if (!coArea) {
+    coArea = document.createElement('div');
+    coArea.id = 'customer-output-area';
+  } else {
+    coArea.innerHTML = '';
+  }
+  area.appendChild(coArea);
+
+  const customerName = document.getElementById('customer-name').value || '';
+  const projectName  = document.getElementById('project-name').value  || '';
+  const n = getMonthLabels().length;
+
+  let grandH = 0;
+  KOSU_SECTIONS.forEach(sec => { sec.rows.forEach(row => { grandH += sumRow(row.id, n); }); });
+  const rate     = parseFloat(document.getElementById('labor-rate').value)  || 0;
+  const contRate = parseFloat(document.getElementById('contingency').value) || 0;
+  const gpRate   = parseFloat(document.getElementById('gp').value)          || 0;
+  const isDou    = document.getElementById('is-dou').value === 'true';
+  let travelGrand = 0;
+  travelRows.forEach(r => { travelGrand += (parseFloat(r.unit)||0)*(parseFloat(r.qty)||0)*(parseFloat(r.cnt)||0); });
+  const laborCost = grandH * rate;
+  const baseCost  = laborCost + travelGrand;
+  const contCost  = isDou ? 0 : baseCost * contRate;
+  const gpBase    = baseCost + contCost;
+  const gpCost    = isDou ? 0 : gpBase * gpRate / (1 - gpRate);
+  const total     = gpBase + gpCost;
+  const ruEl2 = document.getElementById('rounding-unit');
+  const ru = ruEl2 ? (parseInt(ruEl2.value) || 0) : 0;
+  const totalRounded = ru > 0 ? Math.ceil(total / ru) * ru : Math.round(total);
+
+  const coMenuBar = document.createElement('div');
+  coMenuBar.className = 'np';
+  coMenuBar.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;background:#f0f7f4;border:1px solid #6ee7b7;border-radius:8px;margin-bottom:14px';
+  coMenuBar.innerHTML =
+    '<span style="font-size:13px;font-weight:700;color:#065f46">📋 お客様提出用</span>' +
+    '<span style="font-size:12px;color:#374151;margin-left:4px">収録シート:</span>' +
+    '<span style="font-size:12px;background:#fff;border:1px solid #d1fae5;border-radius:4px;padding:2px 10px;color:#065f46;font-weight:600">前提シート</span>' +
+    '<span style="font-size:12px;background:#fff;border:1px solid #d1fae5;border-radius:4px;padding:2px 10px;color:#065f46;font-weight:600">見積もりシート</span>' +
+    '<button style="margin-left:auto;background:#0f766e;color:#fff;border:none;border-radius:5px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px" onclick="printCustomerOutput()">🖨️ 印刷 / PDF 出力</button>';
+  coArea.appendChild(coMenuBar);
+
+  // SHEET 1: 前提シート
+  const premise = document.createElement('div');
+  premise.className = 'sheet-block od';
+  const premiseBody = document.createElement('div');
+  premiseBody.className = 'sheet-body co-wrap';
+  const titleText = [customerName, projectName].filter(Boolean).join(' ') + ' 概算見積もり';
+  premiseBody.innerHTML =
+    '<div style="text-align:right" class="np"><button class="sheet-del btn bd bsm np" onclick="this.closest(\'.sheet-block\').remove()">このシートを削除</button></div>' +
+    '<p class="co-title" contenteditable="true">' + escHtml(titleText) + '</p>';
+
+  const exclusionTitles = [
+    'サービスの適用除外 — 全体','サービスの適用除外 — ソフトウェア',
+    'サービスの適用除外 — ハードウェア','サービスの適用除外 — 設計・構築',
+    'サービスの適用除外 — テスト'
+  ];
+  const exclusionItems = [];
+  CHECKLIST_DATA.forEach(sec => {
+    if (exclusionTitles.indexOf(sec.title) !== -1) {
+      sec.items.forEach(item => { if (item.checked && item.text.trim()) exclusionItems.push(item.text.trim()); });
+    }
+  });
+
+  CHECKLIST_DATA.forEach(sec => {
+    if (exclusionTitles.indexOf(sec.title) !== -1) return;
+    if (sec.title === '注意点') return;
+    const active = sec.items.filter(i => i.checked && i.text.trim());
+    if (active.length === 0) return;
+    const secBlock = document.createElement('div');
+    secBlock.className = 'sec-block';
+    secBlock.innerHTML = '<div class="co-section-heading" contenteditable="true">' + escHtml(sec.title) + '</div>' +
+      active.map(item => '<div class="co-item" contenteditable="true">' + escHtml(item.text) + '</div>').join('');
+    premiseBody.appendChild(secBlock);
+  });
+
+  if (exclusionItems.length > 0) {
+    const excBlock = document.createElement('div');
+    excBlock.className = 'sec-block';
+    excBlock.innerHTML = '<div class="co-section-heading" contenteditable="true">サービスの適用除外</div>' +
+      exclusionItems.map(text => '<div class="co-item" contenteditable="true">' + escHtml(text) + '</div>').join('');
+    premiseBody.appendChild(excBlock);
+  }
+
+  const premiseFooter = document.createElement('div');
+  premiseFooter.style.cssText = 'margin-top:20px;padding:8px 10px;background:#dce6f4;font-weight:700;font-size:14px;border-top:2px solid #1a56a0;display:flex;justify-content:space-between;align-items:center;gap:8px;color:#0c3566';
+  premiseFooter.innerHTML =
+    '<span contenteditable="true">参考見積額</span>' +
+    '<span contenteditable="true">¥' + fmt(totalRounded) + '</span>' +
+    '<button class="del-btn np" onclick="this.parentElement.remove()" title="削除">✕</button>';
+  premiseBody.appendChild(premiseFooter);
+  premise.appendChild(premiseBody);
+  coArea.appendChild(premise);
+
+  // SHEET 2: 見積もりシート
+  const quoteSheet = document.createElement('div');
+  quoteSheet.className = 'sheet-block od co-quote-sheet';
+  const quoteBody = document.createElement('div');
+  quoteBody.className = 'sheet-body co-wrap';
+  quoteBody.innerHTML = '<div style="text-align:right" class="np"><button class="sheet-del btn bd bsm np" onclick="this.closest(\'.sheet-block\').remove()">このシートを削除</button></div>' +
+    '<div class="co-disclaimer" contenteditable="true">' +
+    'この提示価格はあくまでも概算レベルのものですので、正式な支援価格をお約束するものではございません。<br>' +
+    'QA Review承認を得ました正式な見積もりが契約前に必須となりますことをご了承願います。' +
+    '</div>';
+
+  const tbl = document.createElement('table');
+  tbl.className = 'co-quote-tbl';
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><td style="font-weight:700;font-size:15px;text-align:left;background:#dce6f4;border:1px solid #c8d6ea;padding:7px 12px;color:#1a3a5c">作業項目</td></tr>';
+  tbl.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  KOSU_SECTIONS.forEach(sec => {
+    const secTotal = sec.rows.reduce((s, row) => s + sumRow(row.id, n), 0);
+    if (secTotal === 0) return;
+    const secTr = document.createElement('tr');
+    secTr.innerHTML = '<td class="co-quote-sec" contenteditable="true" style="border:1px solid #c8d6ea;text-align:left">' + escHtml(sec.label) + '</td>';
+    const delBtn = document.createElement('button');
+    delBtn.className = 'del-btn np';
+    delBtn.textContent = '✕ 区分削除';
+    delBtn.setAttribute('onclick', 'deleteOutputSection(this)');
+    secTr.querySelector('td').appendChild(delBtn);
+    tbody.appendChild(secTr);
+
+    sec.rows.forEach(row => {
+      const d = kosuData[row.id];
+      if (!d) return;
+      const rt = sumRow(row.id, n);
+      if (rt === 0) return;
+      const subTr = document.createElement('tr');
+      subTr.innerHTML = '<td class="co-quote-sub" contenteditable="true" style="border:1px solid #d8dde3">' + escHtml(d.label) + '</td>';
+      const rowDel = document.createElement('button');
+      rowDel.className = 'del-btn np';
+      rowDel.textContent = '✕';
+      rowDel.setAttribute('onclick', "this.closest('tr').remove()");
+      subTr.querySelector('td').appendChild(rowDel);
+      tbody.appendChild(subTr);
+    });
+
+    const sepTr = document.createElement('tr');
+    sepTr.innerHTML = '<td style="border:1px solid #d8dde3;height:6px;background:#fff"></td>';
+    tbody.appendChild(sepTr);
+  });
+
+  const totalTr = document.createElement('tr');
+  totalTr.className = 'co-total-row';
+  totalTr.innerHTML =
+    '<td style="border:1px solid #c8d6ea;display:flex;justify-content:space-between;align-items:center;gap:8px">' +
+    '<span contenteditable="true">参考見積額</span>' +
+    '<span contenteditable="true">¥' + fmt(totalRounded) + '</span>' +
+    '<button class="del-btn np" onclick="this.closest(\'tr\').remove()" title="削除">✕</button>' +
+    '</td>';
+  tbody.appendChild(totalTr);
+
+  const note1Tr = document.createElement('tr');
+  note1Tr.innerHTML = '<td class="co-note" contenteditable="true" style="border:1px solid #d8dde3">（参考見積額には交通費や宿泊費等のその他費用が含まれています）</td>';
+  tbody.appendChild(note1Tr);
+  const note2Tr = document.createElement('tr');
+  note2Tr.innerHTML = '<td class="co-note" contenteditable="true" style="border:1px solid #d8dde3">（IBM支援契約（準委任契約）でのGP およびContingencyを含んだお客様向け提供価格です）</td>';
+  tbody.appendChild(note2Tr);
+
+  tbl.appendChild(tbody);
+  quoteBody.appendChild(tbl);
+
+  const addRowBtn = document.createElement('button');
+  addRowBtn.className = 'btn bp bsm np';
+  addRowBtn.style.marginTop = '8px';
+  addRowBtn.textContent = '＋ 行を追加';
+  addRowBtn.setAttribute('onclick', 'addCustomerQuoteRow(this)');
+  quoteBody.appendChild(addRowBtn);
+  quoteSheet.appendChild(quoteBody);
+  coArea.appendChild(quoteSheet);
+}
+
+function addCustomerQuoteRow(btn) {
+  const tbl = btn.previousElementSibling;
+  if (!tbl || tbl.tagName !== 'TABLE') return;
+  const tbody = tbl.querySelector('tbody');
+  if (!tbody) return;
+  const totalRow = tbody.querySelector('.co-total-row');
+  const newTr = document.createElement('tr');
+  newTr.innerHTML = '<td class="co-quote-sub" style="border:1px solid #d8dde3" contenteditable="true"></td>';
+  const delBtn = document.createElement('button');
+  delBtn.className = 'del-btn np';
+  delBtn.textContent = '✕';
+  delBtn.setAttribute('onclick', "this.closest('tr').remove()");
+  newTr.querySelector('td').appendChild(delBtn);
+  if (totalRow) tbody.insertBefore(newTr, totalRow);
+  else tbody.appendChild(newTr);
+}
+
+function deleteOutputSection(btn) {
+  const tr = btn.closest('tr');
+  const tbody = tr.closest('tbody');
+  const rows = Array.from(tbody.rows);
+  const idx = rows.indexOf(tr);
+  let i = idx + 1;
+  while (i < rows.length) {
+    const row = rows[i];
+    if (row.style.background === 'rgb(232, 237, 245)' || row.style.background === '#e8edf5') break;
+    if (row.style.background === 'rgb(254, 243, 199)' || row.style.background === '#fef3c7') break;
+    tbody.removeChild(row);
+    i++;
+  }
+  tbody.removeChild(tr);
+}
+
+function addOutputTravelRow(btn) {
+  const table = btn.previousElementSibling.querySelector('#out-travel-tbody') ||
+    btn.closest('.sheet-body').querySelector('tbody');
+  if (!table) return;
+  const rows = table.rows;
+  const lastRow = rows[rows.length - 1];
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td contenteditable="true" style="text-align:left"></td>' +
+    '<td contenteditable="true"></td>' +
+    '<td contenteditable="true" style="text-align:right"></td>' +
+    '<td contenteditable="true" style="text-align:right"></td>' +
+    '<td contenteditable="true" style="text-align:right"></td>' +
+    '<td contenteditable="true" style="text-align:right"></td>' +
+    '<td class="np"><button class="del-btn np" onclick="this.closest(\'tr\').remove()">✕</button></td>';
+  table.insertBefore(tr, lastRow);
+}
+
+// ===================== SAVE / LOAD =====================
+function collectState() {
+  const kosuSnapshot = {};
+  Object.keys(kosuData).forEach(k => {
+    kosuSnapshot[k] = {label: kosuData[k].label, hint: kosuData[k].hint, values: kosuData[k].values.slice()};
+  });
+  const tripsSnapshot = {};
+  Object.keys(kosuTrips).forEach(k => { tripsSnapshot[k] = kosuTrips[k].slice(); });
+  const nightsSnapshot = {};
+  Object.keys(kosuNights).forEach(k => { nightsSnapshot[k] = kosuNights[k].slice(); });
+
+  return {
+    version: 3,
+    appVersion: APP_VERSION,
+    basic: {
+      customerName: document.getElementById('customer-name').value,
+      projectName: document.getElementById('project-name').value,
+      laborRate: document.getElementById('labor-rate').value,
+      contingency: document.getElementById('contingency').value,
+      gp: document.getElementById('gp').value,
+      isDou: document.getElementById('is-dou').value,
+      startYear: document.getElementById('start-year').value,
+      startMonth: document.getElementById('start-month').value,
+      periodMonths: document.getElementById('period-months').value,
+      roundingUnit: (document.getElementById('rounding-unit') || {}).value || '100000'
+    },
+    checklist: JSON.parse(JSON.stringify(CHECKLIST_DATA)),
+    kosuData: kosuSnapshot,
+    kosuTrips: tripsSnapshot,
+    kosuNights: nightsSnapshot,
+    kosuSections: JSON.parse(JSON.stringify(KOSU_SECTIONS)),
+    travelRows: JSON.parse(JSON.stringify(travelRows))
+  };
+}
+
+function saveProject() {
+  const state = collectState();
+  const json = JSON.stringify(state);
+  const projectName = document.getElementById('project-name').value || '見積もり';
+  const fileName = projectName.replace(/[\\/:*?"<>|]/g,'_') + '.html';
+
+  let src = document.documentElement.outerHTML;
+  src = src.replace(/<script id="saved-state"[\s\S]*?<\/script>/g, '');
+  const inject = '<script id="saved-state">window.__SAVED_STATE__=' + json + ';<\/script>';
+  src = src.replace('</head>', inject + '</head>');
+
+  const blob = new Blob(['<!DOCTYPE html>\n' + src], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('保存しました: ' + fileName);
+}
+
+function loadProject(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(e.target.result, 'text/html');
+      const script = doc.getElementById('saved-state');
+      if (!script) { showToast('保存データが見つかりません'); return; }
+      const json = script.textContent.replace(/^window\.__SAVED_STATE__=/, '').replace(/;$/, '');
+      const state = JSON.parse(json);
+      restoreState(state);
+      showToast('読み込みました: ' + file.name);
+    } catch(ex) {
+      showToast('読み込みエラー: ' + ex.message);
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function restoreState(state) {
+  if (!state) return;
+  const b = state.basic || {};
+  if (b.customerName !== undefined) document.getElementById('customer-name').value = b.customerName;
+  if (b.projectName !== undefined) document.getElementById('project-name').value = b.projectName;
+  if (b.laborRate !== undefined) document.getElementById('labor-rate').value = b.laborRate;
+  if (b.contingency !== undefined) document.getElementById('contingency').value = b.contingency;
+  if (b.gp !== undefined) document.getElementById('gp').value = b.gp;
+  if (b.isDou !== undefined) document.getElementById('is-dou').value = b.isDou;
+  if (b.startYear !== undefined) document.getElementById('start-year').value = b.startYear;
+  if (b.startMonth !== undefined) document.getElementById('start-month').value = b.startMonth;
+  if (b.periodMonths !== undefined) document.getElementById('period-months').value = b.periodMonths;
+  if (b.roundingUnit !== undefined) { const ru = document.getElementById('rounding-unit'); if (ru) ru.value = b.roundingUnit; }
+
+  if (state.checklist) CHECKLIST_DATA = JSON.parse(JSON.stringify(state.checklist));
+  if (state.kosuSections) KOSU_SECTIONS = JSON.parse(JSON.stringify(state.kosuSections));
+  if (state.kosuData) {
+    kosuData = {};
+    Object.keys(state.kosuData).forEach(k => {
+      const d = state.kosuData[k];
+      kosuData[k] = {label: d.label, hint: d.hint, values: (d.values || []).concat(new Array(60).fill(0)).slice(0, 60)};
+    });
+  }
+  if (state.kosuTrips) {
+    kosuTrips = {};
+    Object.keys(state.kosuTrips).forEach(k => {
+      kosuTrips[k] = (state.kosuTrips[k] || []).concat(new Array(60).fill(0)).slice(0, 60);
+    });
+  }
+  if (state.kosuNights) {
+    kosuNights = {};
+    Object.keys(state.kosuNights).forEach(k => {
+      kosuNights[k] = (state.kosuNights[k] || []).concat(new Array(60).fill(0)).slice(0, 60);
+    });
+  }
+  if (state.travelRows) travelRows = JSON.parse(JSON.stringify(state.travelRows));
+
+  buildChecklist();
+  buildKosuTable();
+  buildTravelTable();
+  recalcAll();
+}
+
+// ===================== INIT =====================
+window.addEventListener('DOMContentLoaded', () => {
+  initKosuData();
+  buildChecklist();
+  buildKosuTable();
+  buildTravelTable();
+  recalcAll();
+
+  const clBackTop = document.getElementById('cl-back-top');
+  window.addEventListener('scroll', () => {
+    const clTab = document.getElementById('tab-checklist');
+    if (clTab && clTab.classList.contains('active')) {
+      clBackTop.style.display = window.scrollY > 300 ? 'block' : 'none';
+    } else {
+      clBackTop.style.display = 'none';
+    }
+  });
+});
+
+if (window.__SAVED_STATE__) {
+  window.addEventListener('DOMContentLoaded', () => setTimeout(() => restoreState(window.__SAVED_STATE__), 50));
+}
+</script>
+</body>
+</html>
