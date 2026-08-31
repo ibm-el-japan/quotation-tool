@@ -88,6 +88,28 @@ table td input:focus{outline:none;border-color:#1a56a0;background:#fff}
 .sb .sv{font-size:15px;font-weight:700;color:#1a56a0}
 .toast{position:fixed;bottom:24px;right:24px;background:#1a3a5c;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
+/* ── GitHub 連携モーダル ── */
+#gh-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:none;align-items:center;justify-content:center}
+#gh-modal-overlay.open{display:flex}
+#gh-modal{background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.22);width:480px;max-width:95vw;max-height:92vh;overflow-y:auto;font-size:13px}
+#gh-modal .gh-mhead{display:flex;align-items:center;gap:8px;padding:14px 18px;background:#1a56a0;color:#fff;border-radius:10px 10px 0 0}
+#gh-modal .gh-mhead h2{font-size:14px;font-weight:700;flex:1}
+#gh-modal .gh-mbody{padding:16px 18px}
+#gh-modal .gh-mfooter{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid #e5e7eb;background:#f7f8fa;border-radius:0 0 10px 10px}
+#gh-modal .frow{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+#gh-modal .frow label{font-size:11px;font-weight:700;color:#1a3a5c}
+#gh-modal .frow input,#gh-modal .frow textarea{border:1px solid #b0c4de;border-radius:4px;padding:6px 8px;font-size:12px;width:100%}
+#gh-modal .frow input:focus,#gh-modal .frow textarea:focus{outline:none;border-color:#1a56a0}
+#gh-modal .frow .hint2{font-size:11px;color:#57606a;margin-top:2px}
+#gh-modal .gh-file-list{max-height:240px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px;margin-top:4px}
+#gh-modal .gh-file-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #f0f0f0;cursor:pointer;transition:background .12s}
+#gh-modal .gh-file-item:last-child{border-bottom:none}
+#gh-modal .gh-file-item:hover{background:#eef2f8}
+#gh-modal .gh-file-name{flex:1;font-size:12px;color:#1a3a5c;font-weight:600}
+#gh-modal .gh-file-date{font-size:11px;color:#57606a}
+#gh-modal .gh-spinner{text-align:center;padding:16px;color:#57606a;font-size:12px}
+#gh-modal .gh-info-box{background:#eaf1fb;border:1px solid #b0c4de;border-radius:6px;padding:9px 12px;font-size:11px;color:#1a3a5c;line-height:1.7;margin-bottom:12px}
+#gh-modal .gh-warn-box{background:#fffbeb;border:1px solid #f59e0b;border-radius:6px;padding:9px 12px;font-size:11px;color:#78350f;line-height:1.7;margin-bottom:12px}
 /* ── 工数 sticky header & col-resize ── */
 #tab-kosu .tbl-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 200px)}
 #tab-kosu table thead tr{position:sticky;top:0;z-index:4}
@@ -160,11 +182,13 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
 <div id="app">
   <div id="header">
     <h1>📋 見積もり作成ツール</h1>
-    <span class="ver" id="ver-badge">v1.1.0</span>
+    <span class="ver" id="ver-badge">v1.2.0</span>
     <div class="header-btns">
-      <button class="btn bv" onclick="saveProject()">💾 保存</button>
-      <button class="btn bp" onclick="document.getElementById('load-file').click()">📂 読み込み</button>
+      <button class="btn bv" onclick="saveProject()">💾 ローカル保存</button>
+      <button class="btn bp" onclick="document.getElementById('load-file').click()">📂 ローカルから開く</button>
       <input type="file" id="load-file" accept=".html" style="display:none" onchange="loadProject(this)">
+      <button class="btn bg" style="background:#059669" onclick="openGhSaveModal()">☁️ GitHubへ保存</button>
+      <button class="btn bp" style="background:#6366f1" onclick="openGhLoadModal()">📂 GitHubから開く</button>
       <button class="btn bg" onclick="window.print()">🖨️ 印刷/PDF</button>
       <button class="btn bs bsm" id="admin-login-btn" onclick="promptAdminLogin()" title="管理者ログイン">🔑</button>
     </div>
@@ -425,12 +449,13 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
           <table style="max-width:700px">
             <thead><tr><th>項目</th><th>内容</th></tr></thead>
             <tbody>
-              <tr><td class="lc">Release Version</td><td style="text-align:left"><strong>v1.1.0</strong></td></tr>
-              <tr><td class="lc">リリース日</td><td style="text-align:left">2025-07-11</td></tr>
+              <tr><td class="lc">Release Version</td><td style="text-align:left"><strong>v1.2.0</strong></td></tr>
+              <tr><td class="lc">リリース日</td><td style="text-align:left">2025-08-31</td></tr>
               <tr><td class="lc">対応ベース</td><td style="text-align:left">CostPlanSheet2026.xlsm</td></tr>
-              <tr><td class="lc">GitHub リポジトリ</td><td style="text-align:left"><a href="https://github.com/ibmkevin/playground" target="_blank">https://github.com/ibmkevin/playground</a></td></tr>
+              <tr><td class="lc">チームポータル</td><td style="text-align:left"><a href="https://ibm-el-japan.github.io/quotation-tool/" target="_blank">https://ibm-el-japan.github.io/quotation-tool/</a></td></tr>
+              <tr><td class="lc">GitHub リポジトリ</td><td style="text-align:left"><a href="https://github.com/ibm-el-japan/quotation-tool" target="_blank">https://github.com/ibm-el-japan/quotation-tool</a></td></tr>
               <tr><td class="lc">ファイル名</td><td style="text-align:left">quotation-tool.html</td></tr>
-              <tr><td class="lc">管理者</td><td style="text-align:left">ibmkevin</td></tr>
+              <tr><td class="lc">管理者</td><td style="text-align:left">ibmkevin (ibm-el-japan org)</td></tr>
             </tbody>
           </table>
         </div>
@@ -454,7 +479,18 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
             </thead>
             <tbody>
               <tr>
-                <td><strong>v1.1.0</strong></td>
+                <td><strong>v1.2.0</strong></td>
+                <td>2025-08-31</td>
+                <td>ibmkevin</td>
+                <td><span style="background:#dbeafe;color:#1e40af;border-radius:4px;padding:1px 6px;font-size:11px">機能追加</span></td>
+                <td style="text-align:left;white-space:normal">
+                  GitHub連携機能を追加。「☁️ GitHubへ保存」ボタンでwork/フォルダに直接コミット（担当者名・変更コメントをコミットメッセージとして記録）。
+                  「📂 GitHubから開く」ボタンでwork/フォルダのファイル一覧を取得し、クリックで直接読み込み。
+                  GitHub Pages経由でクリックのみでツールを開けるよう整備。ibm-el-japan/quotation-toolリポジトリに全リンクを統一。
+                </td>
+              </tr>
+              <tr>
+                <td>v1.1.0</td>
                 <td>2025-07-11</td>
                 <td>ibmkevin</td>
                 <td><span style="background:#dbeafe;color:#1e40af;border-radius:4px;padding:1px 6px;font-size:11px">機能追加</span></td>
@@ -496,19 +532,19 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
           </table>
           <p style="font-weight:700;margin-bottom:6px;font-size:12px">コラボレーター追加手順</p>
           <ol style="margin:0 0 12px 18px;font-size:12px;line-height:2">
-            <li>GitHub の <a href="https://github.com/ibmkevin/playground/settings/access" target="_blank">Settings → Collaborators and teams</a> を開く</li>
+            <li>GitHub の <a href="https://github.com/ibm-el-japan/quotation-tool/settings/access" target="_blank">Settings → Collaborators and teams</a> を開く</li>
             <li>「Add people」または「Add teams」をクリック</li>
             <li>追加したいメンバーの GitHub ユーザー名またはメールアドレスを入力</li>
             <li>ロールを <strong>Write</strong>（通常メンバー）または <strong>Admin</strong>（管理者）から選択</li>
             <li>「Add [username] to this repository」をクリック → 招待メールが送信される</li>
             <li>招待されたメンバーがメール内のリンクを承認するとアクセス可能になる</li>
           </ol>
-          <p style="font-weight:700;margin-bottom:6px;font-size:12px">ファイル共同編集フロー（推奨）</p>
+          <p style="font-weight:700;margin-bottom:6px;font-size:12px">ファイル共同編集フロー（GitHub連携機能使用）</p>
           <ol style="margin:0 0 12px 18px;font-size:12px;line-height:2">
-            <li>GitHub の <a href="https://github.com/ibmkevin/playground/blob/main/quotation-tool.html" target="_blank">quotation-tool.html</a> を開き「Raw」→ ブラウザに直接ドラッグ&ドロップして使用</li>
-            <li>案件ごとに「💾 保存」で .html ファイルをダウンロードし、案件フォルダで管理</li>
-            <li>フォーマット変更が必要な場合は管理者が quotation-tool.html を更新して GitHub へプッシュ</li>
-            <li>チームは常に GitHub の最新版を参照することで同一フォーマットを使用</li>
+            <li><a href="https://ibm-el-japan.github.io/quotation-tool/" target="_blank">チームポータル</a> から「ツールを開く」をクリック（URLコピー不要）</li>
+            <li>データを入力後、「☁️ GitHubへ保存」ボタン → 担当者名・PAT・コメントを入力 → 保存</li>
+            <li>別のメンバーは「📂 GitHubから開く」ボタン → 一覧からファイルを選択 → 編集継続</li>
+            <li>変更履歴は <a href="https://github.com/ibm-el-japan/quotation-tool/commits/main" target="_blank">GitHub コミット履歴</a> で「誰が・いつ・何を変更したか」を確認可能</li>
           </ol>
           <p style="font-weight:700;margin-bottom:6px;font-size:12px">ツール内の権限モード</p>
           <table style="max-width:700px">
@@ -527,10 +563,27 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
 
 <div class="toast" id="toast"></div>
 
+<!-- ── GitHub 連携モーダル ── -->
+<div id="gh-modal-overlay" onclick="if(event.target===this)closeGhModal()">
+  <div id="gh-modal">
+    <div class="gh-mhead">
+      <span style="font-size:18px">☁️</span>
+      <h2 id="gh-modal-title">GitHub 保存</h2>
+      <button onclick="closeGhModal()" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;padding:2px 6px;border-radius:4px">✕</button>
+    </div>
+    <div class="gh-mbody" id="gh-modal-body">
+      <!-- 動的に生成 -->
+    </div>
+    <div class="gh-mfooter" id="gh-modal-footer">
+      <!-- 動的に生成 -->
+    </div>
+  </div>
+</div>
+
 <script>
 // ===================== VERSION =====================
-const APP_VERSION = 'v1.1.0';
-const APP_RELEASE_DATE = '2025-07-11';
+const APP_VERSION = 'v1.2.0';
+const APP_RELEASE_DATE = '2025-08-31';
 
 // ===================== ADMIN MODE =====================
 let _isAdmin = false;
@@ -1750,6 +1803,264 @@ function addOutputTravelRow(btn) {
     '<td contenteditable="true" style="text-align:right"></td>' +
     '<td class="np"><button class="del-btn np" onclick="this.closest(\'tr\').remove()">✕</button></td>';
   table.insertBefore(tr, lastRow);
+}
+
+// ===================== GITHUB 連携 =====================
+const GH_REPO_OWNER = 'ibm-el-japan';
+const GH_REPO_NAME  = 'quotation-tool';
+const GH_WORK_PATH  = 'work';
+const GH_API_BASE   = 'https://api.github.com';
+
+function _ghPat()      { return sessionStorage.getItem('gh_pat') || ''; }
+function _ghAuthor()   { return sessionStorage.getItem('gh_author') || ''; }
+function _setGhPat(v)  { if (v) sessionStorage.setItem('gh_pat', v); }
+function _setGhAuthor(v){ if (v) sessionStorage.setItem('gh_author', v); }
+
+function closeGhModal() {
+  document.getElementById('gh-modal-overlay').classList.remove('open');
+}
+
+// ── 共通: PATとAuthor入力フォームのHTML ──
+function _ghCredHtml(mode) {
+  return `
+    <div class="gh-info-box">
+      GitHub Personal Access Token (PAT) を使って <strong>ibm-el-japan/quotation-tool</strong> の
+      <code>work/</code> フォルダと直接連携します。<br>
+      PAT は今回のセッション中のみ保持され、ページを閉じると削除されます。
+    </div>
+    <div class="frow">
+      <label>担当者名（イニシャル）</label>
+      <input type="text" id="gh-author" placeholder="例: KS" value="${escHtml(_ghAuthor())}" maxlength="20">
+      <span class="hint2">コミット履歴の「変更者」として記録されます</span>
+    </div>
+    <div class="frow">
+      <label>GitHub Personal Access Token (PAT)</label>
+      <input type="password" id="gh-pat-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" value="${_ghPat() ? '●●●●●●●●●●●●' : ''}">
+      <span class="hint2">
+        PAT の取得: GitHub → Settings → Developer settings → Personal access tokens →
+        Generate new token（Classicで可）→ スコープ: <strong>repo</strong> にチェック
+      </span>
+    </div>
+  `;
+}
+
+// ── PAT取得（入力済みの場合は既存値を優先） ──
+function _resolveCredentials() {
+  const patInput = document.getElementById('gh-pat-input');
+  const authorInput = document.getElementById('gh-author');
+  const author = (authorInput && authorInput.value.trim()) || _ghAuthor();
+  let pat = _ghPat();
+  if (patInput && patInput.value && patInput.value !== '●●●●●●●●●●●●') {
+    pat = patInput.value.trim();
+  }
+  if (author) _setGhAuthor(author);
+  if (pat) _setGhPat(pat);
+  return { pat, author };
+}
+
+// ── GitHub API helper ──
+async function ghFetch(path, options = {}) {
+  const pat = _ghPat();
+  const headers = { 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+  if (pat) headers['Authorization'] = 'Bearer ' + pat;
+  const res = await fetch(GH_API_BASE + path, { ...options, headers: { ...headers, ...(options.headers||{}) } });
+  if (!res.ok) {
+    let msg = res.statusText;
+    try { const j = await res.json(); msg = j.message || msg; } catch(e){}
+    throw new Error('GitHub API エラー: ' + res.status + ' ' + msg);
+  }
+  return res.json();
+}
+
+// ── work/ ファイル一覧取得 ──
+async function ghListWorkFiles() {
+  try {
+    const items = await ghFetch(`/repos/${GH_REPO_OWNER}/${GH_REPO_NAME}/contents/${GH_WORK_PATH}`);
+    return items.filter(i => i.type === 'file' && i.name.endsWith('.html') && i.name !== 'README.md');
+  } catch(e) {
+    return [];
+  }
+}
+
+// ── ファイル内容取得（Base64デコード） ──
+async function ghGetFileContent(filePath) {
+  const data = await ghFetch(`/repos/${GH_REPO_OWNER}/${GH_REPO_NAME}/contents/${filePath}`);
+  return { content: atob(data.content.replace(/\n/g, '')), sha: data.sha };
+}
+
+// ── ファイルをコミット（作成または上書き） ──
+async function ghPutFile(filePath, content, commitMessage, sha) {
+  const body = {
+    message: commitMessage,
+    content: btoa(unescape(encodeURIComponent(content))),
+    branch: 'main'
+  };
+  if (sha) body.sha = sha;
+  await ghFetch(`/repos/${GH_REPO_OWNER}/${GH_REPO_NAME}/contents/${filePath}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+}
+
+// ===================== GITHUB 保存モーダル =====================
+function openGhSaveModal() {
+  const proj = document.getElementById('project-name').value.trim() || '見積もり';
+  const today = new Date();
+  const ymd = today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+  const authorStr = _ghAuthor() || 'XX';
+  const defaultName = proj.replace(/[\\/:*?"<>|]/g,'_') + '_' + ymd + '_v1_' + authorStr + '.html';
+
+  document.getElementById('gh-modal-title').textContent = 'GitHubへ保存（work/ フォルダ）';
+  document.getElementById('gh-modal-body').innerHTML = _ghCredHtml('save') + `
+    <div class="frow">
+      <label>保存ファイル名</label>
+      <input type="text" id="gh-save-filename" value="${escHtml(defaultName)}">
+      <span class="hint2">命名規則: [案件略称]_[YYYYMMDD]_v[番号]_[担当者イニシャル].html</span>
+    </div>
+    <div class="frow">
+      <label>変更コメント（コミットメッセージ）</label>
+      <textarea id="gh-save-comment" rows="2" placeholder="例: 工数・交通費を更新"></textarea>
+      <span class="hint2">GitHub の変更履歴として「誰が・いつ・何を変更したか」が記録されます</span>
+    </div>
+  `;
+  document.getElementById('gh-modal-footer').innerHTML = `
+    <button class="btn bs" onclick="closeGhModal()">キャンセル</button>
+    <button class="btn bg" onclick="execGhSave()" id="gh-save-exec-btn">☁️ GitHub に保存する</button>
+  `;
+  document.getElementById('gh-modal-overlay').classList.add('open');
+}
+
+async function execGhSave() {
+  const { pat, author } = _resolveCredentials();
+  if (!pat) { showToast('PAT を入力してください'); return; }
+  if (!author) { showToast('担当者名（イニシャル）を入力してください'); return; }
+
+  const filename = (document.getElementById('gh-save-filename').value || '').trim();
+  if (!filename) { showToast('ファイル名を入力してください'); return; }
+
+  const comment = (document.getElementById('gh-save-comment').value || '').trim();
+  const projName = document.getElementById('project-name').value.trim() || filename;
+  const commitMsg = `[${author}] ${projName}: ${comment || 'ファイルを更新'}`;
+
+  const btn = document.getElementById('gh-save-exec-btn');
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+
+  try {
+    // 既存ファイルのSHAを取得（上書きの場合）
+    let existingSha = null;
+    const filePath = GH_WORK_PATH + '/' + filename;
+    try {
+      const existing = await ghFetch(`/repos/${GH_REPO_OWNER}/${GH_REPO_NAME}/contents/${filePath}`);
+      existingSha = existing.sha;
+    } catch(e) { /* 新規ファイル */ }
+
+    // 状態をHTMLに埋め込んで保存
+    const state = collectState();
+    const json = JSON.stringify(state);
+    let src = document.documentElement.outerHTML;
+    src = src.replace(/<script id="saved-state"[\s\S]*?<\/script>/g, '');
+    const inject = '<script id="saved-state">window.__SAVED_STATE__=' + json + ';<\/script>';
+    src = src.replace('</head>', inject + '</head>');
+    const fullHtml = '<!DOCTYPE html>\n' + src;
+
+    await ghPutFile(filePath, fullHtml, commitMsg, existingSha);
+
+    closeGhModal();
+    showToast('GitHubに保存しました: work/' + filename);
+  } catch(e) {
+    showToast('保存失敗: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '☁️ GitHub に保存する';
+  }
+}
+
+// ===================== GITHUB 読み込みモーダル =====================
+function openGhLoadModal() {
+  document.getElementById('gh-modal-title').textContent = 'GitHubから開く（work/ フォルダ）';
+  document.getElementById('gh-modal-body').innerHTML = _ghCredHtml('load') + `
+    <div class="frow">
+      <label>work/ フォルダのファイル一覧</label>
+      <div class="gh-file-list" id="gh-file-list">
+        <div class="gh-spinner">読み込みボタンでファイル一覧を取得します</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('gh-modal-footer').innerHTML = `
+    <button class="btn bs" onclick="closeGhModal()">キャンセル</button>
+    <button class="btn bp" onclick="loadGhFileList()" id="gh-list-btn">📋 ファイル一覧を取得</button>
+  `;
+  document.getElementById('gh-modal-overlay').classList.add('open');
+}
+
+async function loadGhFileList() {
+  const { pat } = _resolveCredentials();
+  const btn = document.getElementById('gh-list-btn');
+  btn.disabled = true;
+  btn.textContent = '取得中...';
+
+  const listEl = document.getElementById('gh-file-list');
+  listEl.innerHTML = '<div class="gh-spinner">取得中...</div>';
+
+  try {
+    const items = await ghListWorkFiles();
+
+    if (items.length === 0) {
+      listEl.innerHTML = '<div class="gh-spinner">work/ フォルダにファイルがありません</div>';
+    } else {
+      // ファイルごとに最終コミット情報を取得（並列・最大10件）
+      const fileInfos = await Promise.all(
+        items.slice(0, 20).map(async item => {
+          try {
+            const commits2 = await ghFetch(
+              `/repos/${GH_REPO_OWNER}/${GH_REPO_NAME}/commits?path=${encodeURIComponent(item.path)}&per_page=1`
+            );
+            const last = commits2[0];
+            return {
+              ...item,
+              lastDate: last ? (last.commit.committer.date || last.commit.author.date || '').substring(0,10) : '',
+              lastAuthor: last ? (last.commit.author.name || '') : '',
+              lastMsg: last ? (last.commit.message || '') : ''
+            };
+          } catch(e) { return { ...item, lastDate: '', lastAuthor: '', lastMsg: '' }; }
+        })
+      );
+
+      listEl.innerHTML = fileInfos.map(f => `
+        <div class="gh-file-item" onclick="execGhLoad('${escHtml(f.path)}','${escHtml(f.name)}')">
+          <span style="font-size:16px">📄</span>
+          <span class="gh-file-name">${escHtml(f.name)}</span>
+          <span class="gh-file-date">${f.lastDate ? f.lastDate + ' ' + escHtml(f.lastAuthor) : ''}</span>
+        </div>
+      `).join('');
+    }
+  } catch(e) {
+    listEl.innerHTML = `<div class="gh-spinner" style="color:#dc2626">エラー: ${escHtml(e.message)}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📋 ファイル一覧を取得';
+}
+
+async function execGhLoad(filePath, fileName) {
+  try {
+    const listEl = document.getElementById('gh-file-list');
+    listEl.innerHTML = '<div class="gh-spinner">読み込み中...</div>';
+    const { content } = await ghGetFileContent(filePath);
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    const script = doc.getElementById('saved-state');
+    if (!script) { showToast('保存データが見つかりません'); closeGhModal(); return; }
+    const json = script.textContent.replace(/^window\.__SAVED_STATE__=/, '').replace(/;$/, '');
+    const state = JSON.parse(json);
+    restoreState(state);
+    closeGhModal();
+    showToast('読み込みました: ' + fileName);
+  } catch(e) {
+    showToast('読み込みエラー: ' + e.message);
+    document.getElementById('gh-file-list').innerHTML = `<div class="gh-spinner" style="color:#dc2626">エラー: ${escHtml(e.message)}</div>`;
+  }
 }
 
 // ===================== SAVE / LOAD =====================
