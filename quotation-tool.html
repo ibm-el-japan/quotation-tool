@@ -88,6 +88,28 @@ table td input:focus{outline:none;border-color:#1a56a0;background:#fff}
 .sb .sv{font-size:15px;font-weight:700;color:#1a56a0}
 .toast{position:fixed;bottom:24px;right:24px;background:#1a3a5c;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
+/* ── 差分サマリーモーダル ── */
+#diff-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10001;display:none;align-items:center;justify-content:center}
+#diff-modal-overlay.open{display:flex}
+#diff-modal{background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.25);width:640px;max-width:96vw;max-height:92vh;overflow-y:auto;font-size:13px}
+#diff-modal .dm-head{display:flex;align-items:center;gap:8px;padding:14px 18px;background:#1a3a5c;color:#fff;border-radius:10px 10px 0 0}
+#diff-modal .dm-head h2{font-size:14px;font-weight:700;flex:1}
+#diff-modal .dm-body{padding:16px 18px}
+#diff-modal .dm-footer{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid #e5e7eb;background:#f7f8fa;border-radius:0 0 10px 10px}
+#diff-modal .dm-section{margin-bottom:16px}
+#diff-modal .dm-section-title{font-size:12px;font-weight:700;color:#1a3a5c;background:#eaf1fb;border:1px solid #c8d6ea;border-radius:5px;padding:5px 10px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+#diff-modal .dm-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:8px}
+#diff-modal .dm-add{background:#dcfce7;color:#166534}
+#diff-modal .dm-del{background:#fee2e2;color:#991b1b}
+#diff-modal .dm-chg{background:#dbeafe;color:#1e40af}
+#diff-modal .dm-row{display:flex;gap:8px;align-items:baseline;font-size:12px;padding:3px 6px;border-radius:4px;margin-bottom:3px}
+#diff-modal .dm-row.add{background:#f0fdf4}
+#diff-modal .dm-row.del{background:#fff1f2}
+#diff-modal .dm-row.chg{background:#eff6ff}
+#diff-modal .dm-key{color:#57606a;min-width:120px;flex-shrink:0;font-weight:600}
+#diff-modal .dm-val-del{color:#991b1b;text-decoration:line-through;margin-right:6px}
+#diff-modal .dm-val-new{color:#166534;font-weight:600}
+#diff-modal .dm-none{font-size:12px;color:#57606a;font-style:italic;padding:4px 6px}
 /* ── GitHub 連携モーダル ── */
 #gh-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:none;align-items:center;justify-content:center}
 #gh-modal-overlay.open{display:flex}
@@ -182,7 +204,7 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
 <div id="app">
   <div id="header">
     <h1>📋 見積もり作成ツール</h1>
-    <span class="ver" id="ver-badge">v1.2.0</span>
+    <span class="ver" id="ver-badge">v1.3.0</span>
     <div class="header-btns">
       <button class="btn bg" style="background:#059669" onclick="saveAndUpload()">💾 保存 → GitHubへ</button>
       <button class="btn bp" style="background:#6366f1" onclick="openGhLoadModal()">📂 GitHubから開く</button>
@@ -446,8 +468,8 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
           <table style="max-width:700px">
             <thead><tr><th>項目</th><th>内容</th></tr></thead>
             <tbody>
-              <tr><td class="lc">Release Version</td><td style="text-align:left"><strong>v1.2.0</strong></td></tr>
-              <tr><td class="lc">リリース日</td><td style="text-align:left">2025-08-31</td></tr>
+              <tr><td class="lc">Release Version</td><td style="text-align:left"><strong>v1.3.0</strong></td></tr>
+              <tr><td class="lc">リリース日</td><td style="text-align:left">2025-09-01</td></tr>
               <tr><td class="lc">対応ベース</td><td style="text-align:left">CostPlanSheet2026.xlsm</td></tr>
               <tr><td class="lc">チームポータル</td><td style="text-align:left"><a href="https://ibm-el-japan.github.io/quotation-tool/" target="_blank">https://ibm-el-japan.github.io/quotation-tool/</a></td></tr>
               <tr><td class="lc">GitHub リポジトリ</td><td style="text-align:left"><a href="https://github.com/ibm-el-japan/quotation-tool" target="_blank">https://github.com/ibm-el-japan/quotation-tool</a></td></tr>
@@ -476,7 +498,18 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
             </thead>
             <tbody>
               <tr>
-                <td><strong>v1.2.0</strong></td>
+                <td><strong>v1.3.0</strong></td>
+                <td>2025-09-01</td>
+                <td>ibmkevin</td>
+                <td><span style="background:#dbeafe;color:#1e40af;border-radius:4px;padding:1px 6px;font-size:11px">機能追加</span></td>
+                <td style="text-align:left;white-space:normal">
+                  ファイル開封時に変更内容を自動表示する「🔍 変更履歴ビュー」機能を追加。
+                  前回保存時のスナップショット（prevState）と現在の内容を比較し、基本情報・工数・交通費・チェックシートの変更差分をモーダルで視覚的に表示。
+                  管理者ロック機能を削除（全フィールドを全ユーザーが編集可能に変更）。工数シートの移動・宿泊列を削除。文字化け修正（UTF-8デコード対応）。
+                </td>
+              </tr>
+              <tr>
+                <td>v1.2.0</td>
                 <td>2025-08-31</td>
                 <td>ibmkevin</td>
                 <td><span style="background:#dbeafe;color:#1e40af;border-radius:4px;padding:1px 6px;font-size:11px">機能追加</span></td>
@@ -559,6 +592,21 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
 
 <div class="toast" id="toast"></div>
 
+<!-- ── 差分サマリーモーダル ── -->
+<div id="diff-modal-overlay">
+  <div id="diff-modal">
+    <div class="dm-head">
+      <span style="font-size:18px">🔍</span>
+      <h2 id="diff-modal-title">変更内容の確認</h2>
+      <button onclick="document.getElementById('diff-modal-overlay').classList.remove('open')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;padding:2px 6px;border-radius:4px">✕</button>
+    </div>
+    <div class="dm-body" id="diff-modal-body"></div>
+    <div class="dm-footer">
+      <button class="btn bs" onclick="document.getElementById('diff-modal-overlay').classList.remove('open')">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── GitHub 連携モーダル ── -->
 <div id="gh-modal-overlay" onclick="if(event.target===this)closeGhModal()">
   <div id="gh-modal">
@@ -578,8 +626,8 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
 
 <script>
 // ===================== VERSION =====================
-const APP_VERSION = 'v1.2.0';
-const APP_RELEASE_DATE = '2025-08-31';
+const APP_VERSION = 'v1.3.0';
+const APP_RELEASE_DATE = '2025-09-01';
 
 // ===================== ADMIN MODE =====================
 let _isAdmin = false;
@@ -1847,8 +1895,10 @@ async function execGhSave() {
       existingSha = existing.sha;
     } catch(e) { /* 新規ファイル */ }
 
-    // 状態をHTMLに埋め込んで保存
+    // 状態をHTMLに埋め込んで保存（prevStateに現在の状態を記録）
+    const prevState = window.__SAVED_STATE__ || null;
     const state = collectState();
+    state.prevState = prevState;
     const json = JSON.stringify(state);
     let src = document.documentElement.outerHTML;
     src = src.replace(/<script id="saved-state"[\s\S]*?<\/script>/g, '');
@@ -1945,14 +1995,200 @@ async function execGhLoad(filePath, fileName) {
     if (!script) { showToast('保存データが見つかりません'); closeGhModal(); return; }
     const json = script.textContent.replace(/^window\.__SAVED_STATE__=/, '').replace(/;$/, '');
     const state = JSON.parse(json);
+    const prevState = state.prevState || null;
     restoreState(state);
     closeGhModal();
     showToast('読み込みました: ' + fileName);
+    // prevState があれば差分モーダルを表示
+    if (prevState) {
+      setTimeout(() => showDiffModal(prevState, state, fileName), 300);
+    }
   } catch(e) {
     showToast('読み込みエラー: ' + e.message);
     document.getElementById('gh-file-list').innerHTML = `<div class="gh-spinner" style="color:#dc2626">エラー: ${escHtml(e.message)}</div>`;
   }
 }
+
+
+// ===================== DIFF (変更差分) =====================
+function buildDiffHtml(prev, curr) {
+  if (!prev) return '<p class="dm-none">前バージョンのデータがありません</p>';
+
+  let html = '';
+
+  // ── 基本情報 ──
+  const basicLabels = {
+    customerName:'お客様名', projectName:'案件名', laborRate:'Labor単価',
+    contingency:'Contingency', gp:'GP', isDou:'eDOU契約',
+    startYear:'開始年', startMonth:'開始月', periodMonths:'期間（月）', roundingUnit:'丸め単位'
+  };
+  const pb = prev.basic || {}, cb = curr.basic || {};
+  const basicDiffs = [];
+  Object.keys(basicLabels).forEach(k => {
+    const pv = String(pb[k] ?? ''), cv = String(cb[k] ?? '');
+    if (pv !== cv) basicDiffs.push({key: basicLabels[k], from: pv, to: cv});
+  });
+  html += '<div class="dm-section">';
+  html += '<div class="dm-section-title">📌 基本情報 <span class="dm-badge dm-chg">' + basicDiffs.length + '件変更</span></div>';
+  if (basicDiffs.length === 0) {
+    html += '<div class="dm-none">変更なし</div>';
+  } else {
+    basicDiffs.forEach(d => {
+      html += '<div class="dm-row chg"><span class="dm-key">' + escHtml(d.key) + '</span>' +
+        '<span class="dm-val-del">' + escHtml(d.from || '(空)') + '</span>' +
+        '<span>→</span><span class="dm-val-new">' + escHtml(d.to || '(空)') + '</span></div>';
+    });
+  }
+  html += '</div>';
+
+  // ── 工数 ──
+  const months = getMonthLabels();
+  const kosuDiffs = [];
+  const allRowIds = new Set([
+    ...Object.keys(prev.kosuData || {}),
+    ...Object.keys(curr.kosuData || {})
+  ]);
+  allRowIds.forEach(rid => {
+    const pd = (prev.kosuData || {})[rid];
+    const cd = (curr.kosuData || {})[rid];
+    const label = (cd || pd || {}).label || rid;
+    if (!pd && cd) { kosuDiffs.push({type:'add', label, detail:'行を追加'}); return; }
+    if (pd && !cd) { kosuDiffs.push({type:'del', label, detail:'行を削除'}); return; }
+    const changedMonths = [];
+    for (let i = 0; i < months.length; i++) {
+      const pv = parseFloat((pd.values || [])[i] || 0);
+      const cv = parseFloat((cd.values || [])[i] || 0);
+      if (pv !== cv) changedMonths.push({m: months[i].label, from: pv, to: cv});
+    }
+    if ((pd.label || '') !== (cd.label || '')) {
+      kosuDiffs.push({type:'chg', label, detail: 'ラベル変更: "' + (pd.label||'') + '" → "' + (cd.label||'') + '"'});
+    }
+    if (changedMonths.length > 0) {
+      const detail = changedMonths.map(m => m.m + ': ' + m.from + 'h → ' + m.to + 'h').join('、');
+      kosuDiffs.push({type:'chg', label, detail});
+    }
+  });
+  const kosuAddCount = kosuDiffs.filter(d=>d.type==='add').length;
+  const kosuDelCount = kosuDiffs.filter(d=>d.type==='del').length;
+  const kosuChgCount = kosuDiffs.filter(d=>d.type==='chg').length;
+  html += '<div class="dm-section">';
+  html += '<div class="dm-section-title">📊 工数シート ';
+  if (kosuAddCount) html += '<span class="dm-badge dm-add">+' + kosuAddCount + '行</span> ';
+  if (kosuDelCount) html += '<span class="dm-badge dm-del">-' + kosuDelCount + '行</span> ';
+  if (kosuChgCount) html += '<span class="dm-badge dm-chg">' + kosuChgCount + '件変更</span>';
+  if (!kosuAddCount && !kosuDelCount && !kosuChgCount) html += '<span class="dm-badge" style="background:#f3f4f6;color:#374151">変更なし</span>';
+  html += '</div>';
+  if (kosuDiffs.length === 0) {
+    html += '<div class="dm-none">変更なし</div>';
+  } else {
+    kosuDiffs.forEach(d => {
+      const cls = d.type === 'add' ? 'add' : d.type === 'del' ? 'del' : 'chg';
+      const mark = d.type === 'add' ? '＋' : d.type === 'del' ? '－' : '✏';
+      html += '<div class="dm-row ' + cls + '"><span class="dm-key">' + mark + ' ' + escHtml(d.label) + '</span>' +
+        '<span>' + escHtml(d.detail) + '</span></div>';
+    });
+  }
+  html += '</div>';
+
+  // ── 交通費等 ──
+  const prevTravel = prev.travelRows || [], currTravel = curr.travelRows || [];
+  const travelDiffs = [];
+  const travelMap = {};
+  prevTravel.forEach(r => { travelMap[r.id] = {prev: r}; });
+  currTravel.forEach(r => {
+    if (travelMap[r.id]) travelMap[r.id].curr = r;
+    else travelMap[r.id] = {curr: r};
+  });
+  Object.values(travelMap).forEach(({prev: p, curr: c}) => {
+    if (!p) { travelDiffs.push({type:'add', label: c.type || '(新規)', detail:'行を追加'}); return; }
+    if (!c) { travelDiffs.push({type:'del', label: p.type || '(削除)', detail:'行を削除'}); return; }
+    const changes = [];
+    if (String(p.unit||'') !== String(c.unit||'')) changes.push('単価: ' + (p.unit||0) + ' → ' + (c.unit||0));
+    if (String(p.qty||'') !== String(c.qty||'')) changes.push('数量: ' + (p.qty||0) + ' → ' + (c.qty||0));
+    if (String(p.cnt||'') !== String(c.cnt||'')) changes.push('回数: ' + (p.cnt||0) + ' → ' + (c.cnt||0));
+    if (String(p.place||'') !== String(c.place||'')) changes.push('場所: "' + (p.place||'') + '" → "' + (c.place||'') + '"');
+    if (changes.length) travelDiffs.push({type:'chg', label: c.type || p.type || '', detail: changes.join('、')});
+  });
+  const trAdd = travelDiffs.filter(d=>d.type==='add').length;
+  const trDel = travelDiffs.filter(d=>d.type==='del').length;
+  const trChg = travelDiffs.filter(d=>d.type==='chg').length;
+  html += '<div class="dm-section">';
+  html += '<div class="dm-section-title">🚌 交通費等 ';
+  if (trAdd) html += '<span class="dm-badge dm-add">+' + trAdd + '行</span> ';
+  if (trDel) html += '<span class="dm-badge dm-del">-' + trDel + '行</span> ';
+  if (trChg) html += '<span class="dm-badge dm-chg">' + trChg + '件変更</span>';
+  if (!trAdd && !trDel && !trChg) html += '<span class="dm-badge" style="background:#f3f4f6;color:#374151">変更なし</span>';
+  html += '</div>';
+  if (travelDiffs.length === 0) {
+    html += '<div class="dm-none">変更なし</div>';
+  } else {
+    travelDiffs.forEach(d => {
+      const cls = d.type === 'add' ? 'add' : d.type === 'del' ? 'del' : 'chg';
+      const mark = d.type === 'add' ? '＋' : d.type === 'del' ? '－' : '✏';
+      html += '<div class="dm-row ' + cls + '"><span class="dm-key">' + mark + ' ' + escHtml(d.label) + '</span>' +
+        '<span>' + escHtml(d.detail) + '</span></div>';
+    });
+  }
+  html += '</div>';
+
+  // ── チェックシート ──
+  const prevCL = prev.checklist || [], currCL = curr.checklist || [];
+  let clAdded = 0, clRemoved = 0, clChanged = 0;
+  const clDetails = [];
+  const maxSec = Math.max(prevCL.length, currCL.length);
+  for (let si = 0; si < maxSec; si++) {
+    const ps = prevCL[si], cs = currCL[si];
+    const secTitle = (cs || ps || {}).title || ('セクション' + (si+1));
+    if (!ps && cs) { clAdded += (cs.items||[]).length; continue; }
+    if (ps && !cs) { clRemoved += (ps.items||[]).length; continue; }
+    const pi = ps.items || [], ci = cs.items || [];
+    const maxItem = Math.max(pi.length, ci.length);
+    for (let ii = 0; ii < maxItem; ii++) {
+      const pItem = pi[ii], cItem = ci[ii];
+      if (!pItem && cItem) { clAdded++; continue; }
+      if (pItem && !cItem) { clRemoved++; continue; }
+      if (pItem.text !== cItem.text || pItem.checked !== cItem.checked) {
+        clChanged++;
+        if (clDetails.length < 10) {
+          const detail = pItem.checked !== cItem.checked
+            ? '[' + secTitle + '] "' + escHtml(cItem.text||pItem.text) + '" チェック: ' + (pItem.checked?'✓':'□') + ' → ' + (cItem.checked?'✓':'□')
+            : '[' + secTitle + '] "' + escHtml(pItem.text) + '" → "' + escHtml(cItem.text) + '"';
+          clDetails.push({type:'chg', detail});
+        }
+      }
+    }
+  }
+  html += '<div class="dm-section">';
+  html += '<div class="dm-section-title">☑️ チェックシート ';
+  if (clAdded) html += '<span class="dm-badge dm-add">+' + clAdded + '</span> ';
+  if (clRemoved) html += '<span class="dm-badge dm-del">-' + clRemoved + '</span> ';
+  if (clChanged) html += '<span class="dm-badge dm-chg">' + clChanged + '件変更</span>';
+  if (!clAdded && !clRemoved && !clChanged) html += '<span class="dm-badge" style="background:#f3f4f6;color:#374151">変更なし</span>';
+  html += '</div>';
+  if (clDetails.length === 0 && !clAdded && !clRemoved) {
+    html += '<div class="dm-none">変更なし</div>';
+  } else {
+    clDetails.forEach(d => {
+      html += '<div class="dm-row chg"><span>' + d.detail + '</span></div>';
+    });
+    if (clChanged > 10) html += '<div class="dm-none">他 ' + (clChanged - 10) + ' 件の変更あり</div>';
+    if (clAdded) html += '<div class="dm-row add"><span class="dm-key">＋</span><span>項目を ' + clAdded + ' 件追加</span></div>';
+    if (clRemoved) html += '<div class="dm-row del"><span class="dm-key">－</span><span>項目を ' + clRemoved + ' 件削除</span></div>';
+  }
+  html += '</div>';
+
+  return html;
+}
+
+function showDiffModal(prev, curr, fileName) {
+  document.getElementById('diff-modal-title').textContent = '🔍 変更内容の確認 — ' + (fileName || '');
+  document.getElementById('diff-modal-body').innerHTML =
+    '<div style="background:#eaf1fb;border:1px solid #b0c4de;border-radius:6px;padding:8px 12px;font-size:12px;color:#1a3a5c;margin-bottom:14px">' +
+    '前バージョン（保存時点）からの変更内容をシートごとに表示しています。</div>' +
+    buildDiffHtml(prev, curr);
+  document.getElementById('diff-modal-overlay').classList.add('open');
+}
+
 
 // ===================== SAVE & UPLOAD (PAT不要フロー) =====================
 const GH_UPLOAD_URL = 'https://github.com/ibm-el-japan/quotation-tool/upload/main/work';
@@ -1964,8 +2200,10 @@ function saveAndUpload() {
   const ymd = today.getFullYear() + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
   const fileName = proj.replace(/[\\/:*?"<>|]/g,'_') + '_' + ymd + '_v1.html';
 
-  // ローカルにダウンロード
+  // ローカルにダウンロード（prevStateに現在のSAVED_STATEを記録）
+  const prevState = window.__SAVED_STATE__ || null;
   const state = collectState();
+  state.prevState = prevState;
   const json = JSON.stringify(state);
   let src = document.documentElement.outerHTML;
   src = src.replace(/<script id="saved-state"[\s\S]*?<\/script>/g, '');
@@ -2050,7 +2288,9 @@ function collectState() {
 }
 
 function saveProject() {
+  const prevState = window.__SAVED_STATE__ || null;
   const state = collectState();
+  state.prevState = prevState;
   const json = JSON.stringify(state);
   const projectName = document.getElementById('project-name').value || '見積もり';
   const fileName = projectName.replace(/[\\/:*?"<>|]/g,'_') + '.html';
@@ -2081,8 +2321,12 @@ function loadProject(input) {
       if (!script) { showToast('保存データが見つかりません'); return; }
       const json = script.textContent.replace(/^window\.__SAVED_STATE__=/, '').replace(/;$/, '');
       const state = JSON.parse(json);
+      const prevState = state.prevState || null;
       restoreState(state);
       showToast('読み込みました: ' + file.name);
+      if (prevState) {
+        setTimeout(() => showDiffModal(prevState, state, file.name), 300);
+      }
     } catch(ex) {
       showToast('読み込みエラー: ' + ex.message);
     }
