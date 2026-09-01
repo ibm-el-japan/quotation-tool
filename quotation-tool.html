@@ -1896,7 +1896,13 @@ async function execGhSave() {
     } catch(e) { /* 新規ファイル */ }
 
     // 状態をHTMLに埋め込んで保存（prevStateに現在の状態を記録）
-    const prevState = window.__SAVED_STATE__ || null;
+    const rawPrev = window.__SAVED_STATE__ || null;
+    // 無限ネストを防ぐため prevState の中の prevState は除去する
+    let prevState = null;
+    if (rawPrev) {
+      const { prevState: _drop, ...rest } = rawPrev;
+      prevState = rest;
+    }
     const state = collectState();
     state.prevState = prevState;
     const json = JSON.stringify(state);
@@ -1907,6 +1913,9 @@ async function execGhSave() {
     const fullHtml = '<!DOCTYPE html>\n' + src;
 
     await ghPutFile(filePath, fullHtml, commitMsg, existingSha);
+
+    // 保存後は現在の state を基準にする（次回保存で再び差分が取れるように）
+    window.__SAVED_STATE__ = state;
 
     closeGhModal();
     showToast('GitHubに保存しました: work/' + filename);
@@ -1997,6 +2006,8 @@ async function execGhLoad(filePath, fileName) {
     const state = JSON.parse(json);
     const prevState = state.prevState || null;
     restoreState(state);
+    // ロードした状態を __SAVED_STATE__ に反映（次回保存時の prevState 基準となる）
+    window.__SAVED_STATE__ = state;
     closeGhModal();
     showToast('読み込みました: ' + fileName);
     // prevState があれば差分モーダルを表示
@@ -2201,7 +2212,12 @@ function saveAndUpload() {
   const fileName = proj.replace(/[\\/:*?"<>|]/g,'_') + '_' + ymd + '_v1.html';
 
   // ローカルにダウンロード（prevStateに現在のSAVED_STATEを記録）
-  const prevState = window.__SAVED_STATE__ || null;
+  const rawPrev = window.__SAVED_STATE__ || null;
+  let prevState = null;
+  if (rawPrev) {
+    const { prevState: _drop, ...rest } = rawPrev;
+    prevState = rest;
+  }
   const state = collectState();
   state.prevState = prevState;
   const json = JSON.stringify(state);
@@ -2288,7 +2304,12 @@ function collectState() {
 }
 
 function saveProject() {
-  const prevState = window.__SAVED_STATE__ || null;
+  const rawPrev = window.__SAVED_STATE__ || null;
+  let prevState = null;
+  if (rawPrev) {
+    const { prevState: _drop, ...rest } = rawPrev;
+    prevState = rest;
+  }
   const state = collectState();
   state.prevState = prevState;
   const json = JSON.stringify(state);
@@ -2306,6 +2327,8 @@ function saveProject() {
   a.download = fileName;
   a.click();
   URL.revokeObjectURL(a.href);
+  // 保存後は現在の state を基準にする（次回保存で再び差分が取れるように）
+  window.__SAVED_STATE__ = state;
   showToast('保存しました: ' + fileName);
 }
 
@@ -2323,6 +2346,8 @@ function loadProject(input) {
       const state = JSON.parse(json);
       const prevState = state.prevState || null;
       restoreState(state);
+      // ロードした状態を __SAVED_STATE__ に反映（次回保存時の prevState 基準となる）
+      window.__SAVED_STATE__ = state;
       showToast('読み込みました: ' + file.name);
       if (prevState) {
         setTimeout(() => showDiffModal(prevState, state, file.name), 300);
