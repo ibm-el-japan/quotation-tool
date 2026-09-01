@@ -7,6 +7,30 @@ All notable changes to `quotation-tool.html` are documented here.
 
 ---
 
+## [v1.4.0] — 2025-09-01
+
+### 機能追加 (Added)
+- **👥 GitHub ユーザー登録フローを一般ユーザー／管理者に分離**
+  - **一般ユーザー**: バージョン情報タブに「GitHub アカウント登録申請（ステップ1〜4）」ガイドを追加
+    - ステップ1: GitHub アカウント作成手順
+    - ステップ2: 管理者への招待依頼（「📧 管理者へ招待を申請する」ボタンでメール下書きを自動生成）
+    - ステップ3: 招待承認後の PAT 取得手順
+    - ステップ4: ツールでの PAT 使い方
+  - **管理者専用**: 管理者モードでのみ表示される「🔑 【管理者専用】ユーザー登録・権限管理」カードを追加
+    - 一般ユーザー（Write）の登録手順
+    - 管理者（Admin）の登録手順
+    - 権限一覧表（GitHub ロール × ツール内モード）
+    - 管理リンク（コラボレーター管理・コミット履歴）
+    - 管理者モードログアウト時は自動的に非表示
+
+### 修正 (Fixed)
+- **差分表示バグ修正**: ファイルロード後（`execGhLoad` / `loadProject`）に `window.__SAVED_STATE__` を更新するよう修正。これにより「v1を開いて編集 → v2として保存 → v2を開くと v1 との差分が表示される」フローが正しく動作するようになった
+
+### 変更者
+- ibmkevin
+
+---
+
 ## [v1.3.0] — 2025-09-01
 
 ### 機能追加 (Added)
@@ -76,6 +100,7 @@ All notable changes to `quotation-tool.html` are documented here.
 
 | Version | ファイル | リリース日 |
 |---|---|---|
+| v1.4.0 | `releases/quotation-tool_v1.4.0.html` | 2025-09-01 |
 | v1.3.0 | `releases/quotation-tool_v1.3.0.html` | 2025-09-01 |
 | v1.2.0 | `releases/quotation-tool_v1.2.0.html` | 2025-08-31 |
 | v1.1.0 | `releases/quotation-tool_v1.1.0.html` | 2025-07-11 |
