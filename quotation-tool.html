@@ -204,7 +204,7 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
 <div id="app">
   <div id="header">
     <h1>📋 見積もり作成ツール</h1>
-    <span class="ver" id="ver-badge">v1.3.0</span>
+    <span class="ver" id="ver-badge">v1.4.0</span>
     <div class="header-btns">
       <button class="btn bg" style="background:#059669" onclick="saveAndUpload()">💾 保存 → GitHubへ</button>
       <button class="btn bp" style="background:#6366f1" onclick="openGhLoadModal()">📂 GitHubから開く</button>
@@ -468,7 +468,7 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
           <table style="max-width:700px">
             <thead><tr><th>項目</th><th>内容</th></tr></thead>
             <tbody>
-              <tr><td class="lc">Release Version</td><td style="text-align:left"><strong>v1.3.0</strong></td></tr>
+              <tr><td class="lc">Release Version</td><td style="text-align:left"><strong>v1.4.0</strong></td></tr>
               <tr><td class="lc">リリース日</td><td style="text-align:left">2025-09-01</td></tr>
               <tr><td class="lc">対応ベース</td><td style="text-align:left">CostPlanSheet2026.xlsm</td></tr>
               <tr><td class="lc">チームポータル</td><td style="text-align:left"><a href="https://ibm-el-japan.github.io/quotation-tool/" target="_blank">https://ibm-el-japan.github.io/quotation-tool/</a></td></tr>
@@ -498,7 +498,18 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
             </thead>
             <tbody>
               <tr>
-                <td><strong>v1.3.0</strong></td>
+                <td><strong>v1.4.0</strong></td>
+                <td>2025-09-01</td>
+                <td>ibmkevin</td>
+                <td><span style="background:#dbeafe;color:#1e40af;border-radius:4px;padding:1px 6px;font-size:11px">機能追加</span></td>
+                <td style="text-align:left;white-space:normal">
+                  GitHub ユーザー登録フローを一般ユーザー／管理者で分離。一般ユーザーはバージョン情報タブの「登録申請」ガイドから自己申請可能（ステップ1〜4形式）。
+                  管理者専用の「ユーザー登録・権限管理」カードを追加（管理者モードでのみ表示）。
+                  差分表示のバグ修正: ファイルロード後に __SAVED_STATE__ を更新することで、次回保存時の prevState が正しく設定されるよう修正。
+                </td>
+              </tr>
+              <tr>
+                <td>v1.3.0</td>
                 <td>2025-09-01</td>
                 <td>ibmkevin</td>
                 <td><span style="background:#dbeafe;color:#1e40af;border-radius:4px;padding:1px 6px;font-size:11px">機能追加</span></td>
@@ -544,47 +555,140 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
         </div>
       </div>
 
+      <!-- ── 一般ユーザー向け: GitHub アカウント登録申請 ── -->
       <div class="card">
         <div class="card-header" onclick="toggleCard(this)">
-          <h3>👥 GitHub コラボレーター設定・権限管理</h3>
+          <h3>🙋 GitHub アカウント登録申請（一般ユーザー）</h3>
           <span class="ti">▼</span>
         </div>
-        <div class="card-body" id="tab-changelog">
-          <p class="hint">同じ部署のチームメンバーがリポジトリにアクセスし、ファイルを共同編集するための設定手順です。</p>
-          <table style="max-width:900px;margin-bottom:14px">
-            <thead><tr><th>ロール</th><th>権限</th><th>用途</th></tr></thead>
-            <tbody>
-              <tr><td class="lc">Admin（管理者）</td><td style="text-align:left">リポジトリの全設定・削除・コラボレーター管理・ブランチ保護</td><td style="text-align:left">フォーマット管理者（ibmkevin 等）</td></tr>
-              <tr><td class="lc">Write（書き込み）</td><td style="text-align:left">ファイルの作成・編集・コミット・プルリクエスト作成</td><td style="text-align:left">チームメンバー（担当SE等）</td></tr>
-              <tr><td class="lc">Read（読み取り）</td><td style="text-align:left">ファイルの閲覧・ダウンロードのみ</td><td style="text-align:left">参照のみのメンバー</td></tr>
-            </tbody>
-          </table>
-          <p style="font-weight:700;margin-bottom:6px;font-size:12px">コラボレーター追加手順</p>
-          <ol style="margin:0 0 12px 18px;font-size:12px;line-height:2">
-            <li>GitHub の <a href="https://github.com/ibm-el-japan/quotation-tool/settings/access" target="_blank">Settings → Collaborators and teams</a> を開く</li>
-            <li>「Add people」または「Add teams」をクリック</li>
-            <li>追加したいメンバーの GitHub ユーザー名またはメールアドレスを入力</li>
-            <li>ロールを <strong>Write</strong>（通常メンバー）または <strong>Admin</strong>（管理者）から選択</li>
-            <li>「Add [username] to this repository」をクリック → 招待メールが送信される</li>
-            <li>招待されたメンバーがメール内のリンクを承認するとアクセス可能になる</li>
+        <div class="card-body">
+          <p class="hint" style="margin-bottom:12px">このツールの「☁️ GitHubへ保存」「📂 GitHubから開く」機能を利用するには、GitHub アカウントを持ち、管理者にリポジトリへの招待を依頼する必要があります。</p>
+
+          <p style="font-weight:700;font-size:12px;margin-bottom:8px;color:#1a3a5c">📋 ステップ1 — GitHub アカウントの作成（未作成の場合）</p>
+          <ol style="margin:0 0 14px 18px;font-size:12px;line-height:2">
+            <li><a href="https://github.com/signup" target="_blank">https://github.com/signup</a> にアクセスし、無料アカウントを作成する</li>
+            <li>メールアドレス・パスワード・ユーザー名を設定し、メール認証を完了する</li>
+            <li>作成した <strong>GitHub ユーザー名</strong>（例: <code>taro-ibm</code>）を控えておく</li>
           </ol>
-          <p style="font-weight:700;margin-bottom:6px;font-size:12px">ファイル共同編集フロー（GitHub連携機能使用）</p>
-          <ol style="margin:0 0 12px 18px;font-size:12px;line-height:2">
-            <li><a href="https://ibm-el-japan.github.io/quotation-tool/" target="_blank">チームポータル</a> から「ツールを開く」をクリック（URLコピー不要）</li>
-            <li>データを入力後、「☁️ GitHubへ保存」ボタン → 担当者名・PAT・コメントを入力 → 保存</li>
-            <li>別のメンバーは「📂 GitHubから開く」ボタン → 一覧からファイルを選択 → 編集継続</li>
-            <li>変更履歴は <a href="https://github.com/ibm-el-japan/quotation-tool/commits/main" target="_blank">GitHub コミット履歴</a> で「誰が・いつ・何を変更したか」を確認可能</li>
+
+          <p style="font-weight:700;font-size:12px;margin-bottom:8px;color:#1a3a5c">📩 ステップ2 — 管理者へ招待依頼を送る</p>
+          <p style="font-size:12px;margin-bottom:8px;color:#374151">以下のボタンから管理者宛てにメールを送信してください。件名・本文は自動で入力されます。<strong>GitHub ユーザー名</strong>の部分だけ書き換えて送ってください。</p>
+          <button class="btn bp" style="font-size:12px;margin-bottom:14px" onclick="openGhRegisterRequestMail()">📧 管理者へ招待を申請する</button>
+
+          <p style="font-weight:700;font-size:12px;margin-bottom:8px;color:#1a3a5c">🔑 ステップ3 — 招待承認後: Personal Access Token (PAT) の取得</p>
+          <p style="font-size:12px;margin-bottom:6px;color:#374151">管理者から招待メールが届いたら承認し、その後 PAT を発行してツールで使用します。</p>
+          <ol style="margin:0 0 14px 18px;font-size:12px;line-height:2">
+            <li>GitHub にログインし、右上のアイコン → <strong>Settings</strong> を開く</li>
+            <li>左メニュー最下部 <strong>Developer settings</strong> → <strong>Personal access tokens</strong> → <strong>Tokens (classic)</strong> を開く</li>
+            <li><strong>Generate new token (classic)</strong> をクリック</li>
+            <li>Note に「見積もりツール用」などを入力、Expiration は「No expiration」または任意の期間を設定</li>
+            <li>スコープで <strong>repo</strong>（最上位のチェックボックス）にチェックを入れる</li>
+            <li><strong>Generate token</strong> をクリック → 表示されたトークン（<code>ghp_...</code>）をコピーして安全な場所に保存する<br>
+              <span style="color:#dc2626;font-size:11px">⚠️ このページを離れるとトークンは二度と表示されません</span></li>
           </ol>
-          <p style="font-weight:700;margin-bottom:6px;font-size:12px">ツール内の権限モード</p>
-          <table style="max-width:700px">
-            <thead><tr><th>モード</th><th>操作可能な項目</th><th>制限される項目</th></tr></thead>
-            <tbody>
-              <tr><td class="lc">一般ユーザー（デフォルト）</td><td style="text-align:left;white-space:normal">お客様名・案件名・eDOU設定・チェックシート・工数入力・交通費入力・出力生成</td><td style="text-align:left;white-space:normal">Labor単価・Contingency・GP・チェックシートのデフォルト項目追加削除</td></tr>
-              <tr><td class="lc">管理者モード（🔑ボタン）</td><td style="text-align:left;white-space:normal">全項目（Labor単価・Contingency・GP・フォーマット変更含む）</td><td style="text-align:left">なし</td></tr>
-            </tbody>
-          </table>
+
+          <p style="font-weight:700;font-size:12px;margin-bottom:8px;color:#1a3a5c">💡 ステップ4 — ツールでの使い方</p>
+          <ol style="margin:0 0 6px 18px;font-size:12px;line-height:2">
+            <li>「☁️ GitHubへ保存」または「📂 GitHubから開く」ボタンをクリックする</li>
+            <li>担当者名（イニシャル）と取得した PAT を入力する</li>
+            <li>PAT はセッション中のみ保持され、ブラウザを閉じると削除される（再入力が必要）</li>
+          </ol>
         </div>
       </div>
+
+      <!-- ── 一般ユーザー向け: ファイル共同編集フロー ── -->
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <h3>🔄 ファイル共同編集フロー</h3>
+          <span class="ti">▼</span>
+        </div>
+        <div class="card-body">
+          <ol style="margin:0 0 12px 18px;font-size:12px;line-height:2.2">
+            <li><a href="https://ibm-el-japan.github.io/quotation-tool/" target="_blank">チームポータル</a> から「ツールを開く」をクリック（URLコピー不要）</li>
+            <li>データを入力後、「💾 保存 → GitHubへ」または「☁️ API保存」ボタンをクリック<br>
+              <span style="font-size:11px;color:#57606a">ファイル名（例: ABC社_20250901_v1_KS.html）・担当者イニシャル・PAT・変更コメントを入力して保存</span></li>
+            <li>別のメンバーは「📂 GitHubから開く」ボタン → 一覧からファイルを選択して編集継続</li>
+            <li>ファイルを開くと、<strong>前バージョンからの差分が自動表示</strong>される（変更内容をすぐ確認可能）</li>
+            <li>変更履歴は <a href="https://github.com/ibm-el-japan/quotation-tool/commits/main" target="_blank">GitHub コミット履歴</a> で「誰が・いつ・何を変更したか」を確認可能</li>
+          </ol>
+          <p style="font-weight:700;font-size:12px;margin-bottom:6px;color:#1a3a5c">ファイル命名規則</p>
+          <p style="font-size:12px;font-family:monospace;background:#f0f3f7;border:1px solid #c8d6ea;border-radius:4px;padding:6px 10px;color:#1a3a5c">
+            [案件略称]_[YYYYMMDD]_v[番号]_[担当者イニシャル].html<br>
+            <span style="color:#57606a">例: ABC社_20250901_v1_KS.html</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- ── 管理者専用: ユーザー登録管理（管理者ログイン時のみ表示） ── -->
+      <div class="card" id="admin-user-mgmt-card" style="display:none;border-color:#d97706">
+        <div class="card-header" onclick="toggleCard(this)" style="background:#fef9c3;border-bottom-color:#fde68a">
+          <h3 style="color:#92400e">🔑 【管理者専用】ユーザー登録・権限管理</h3>
+          <span class="ti">▼</span>
+        </div>
+        <div class="card-body" style="background:#fffef0">
+          <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:6px;padding:8px 12px;font-size:12px;color:#92400e;margin-bottom:14px">
+            ⚠️ このセクションは管理者のみに表示されます。ユーザー登録は管理者が GitHub から直接行ってください。一般ユーザーには登録方法を案内しないでください。
+          </div>
+
+          <p style="font-weight:700;font-size:12px;margin-bottom:8px;color:#92400e">📋 一般ユーザーの登録手順（Write 権限）</p>
+          <ol style="margin:0 0 14px 18px;font-size:12px;line-height:2">
+            <li>GitHub の <a href="https://github.com/ibm-el-japan/quotation-tool/settings/access" target="_blank" style="color:#1a56a0">Settings → Collaborators and teams</a> を開く</li>
+            <li>「<strong>Add people</strong>」をクリック</li>
+            <li>登録したいメンバーの GitHub ユーザー名またはメールアドレスを入力する</li>
+            <li>ロールを <strong>Write</strong>（通常メンバー）に設定する</li>
+            <li>「Add [username] to this repository」をクリック → 招待メールが自動送信される</li>
+            <li>招待されたメンバーがメール内の承認リンクをクリックするとアクセス可能になる</li>
+          </ol>
+
+          <p style="font-weight:700;font-size:12px;margin-bottom:8px;color:#92400e">👑 管理者（Admin）の登録手順</p>
+          <ol style="margin:0 0 14px 18px;font-size:12px;line-height:2">
+            <li>GitHub の <a href="https://github.com/ibm-el-japan/quotation-tool/settings/access" target="_blank" style="color:#1a56a0">Settings → Collaborators and teams</a> を開く</li>
+            <li>「<strong>Add people</strong>」をクリック</li>
+            <li>登録したいメンバーの GitHub ユーザー名またはメールアドレスを入力する</li>
+            <li>ロールを <strong>Admin</strong> に設定する</li>
+            <li>「Add [username] to this repository」をクリック → 招待メールが自動送信される</li>
+            <li><strong>ツール内管理者パスワードも別途伝達すること</strong>（口頭または安全な方法で）</li>
+          </ol>
+
+          <p style="font-weight:700;font-size:12px;margin-bottom:8px;color:#92400e">📊 権限一覧</p>
+          <table style="max-width:900px;margin-bottom:14px">
+            <thead><tr><th>GitHub ロール</th><th>権限範囲</th><th>ツール内モード</th><th>用途</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="lc">Admin</td>
+                <td style="text-align:left;white-space:normal">リポジトリの全設定・削除・コラボレーター管理・ブランチ保護・全ファイル変更</td>
+                <td style="text-align:left">管理者モード（🔑パスワード認証）</td>
+                <td style="text-align:left">フォーマット管理者（ibmkevin 等）</td>
+              </tr>
+              <tr>
+                <td class="lc">Write</td>
+                <td style="text-align:left;white-space:normal">ファイルの作成・編集・コミット</td>
+                <td style="text-align:left">一般ユーザーモード</td>
+                <td style="text-align:left">担当SE等のチームメンバー</td>
+              </tr>
+              <tr>
+                <td class="lc">Read</td>
+                <td style="text-align:left">ファイルの閲覧・ダウンロードのみ</td>
+                <td style="text-align:left">一般ユーザーモード（読み取り専用）</td>
+                <td style="text-align:left">参照のみのメンバー</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p style="font-weight:700;font-size:12px;margin-bottom:8px;color:#92400e">🔗 管理リンク</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="https://github.com/ibm-el-japan/quotation-tool/settings/access" target="_blank"
+               style="display:inline-block;background:#92400e;color:#fff;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none">
+              👥 コラボレーター管理 →
+            </a>
+            <a href="https://github.com/ibm-el-japan/quotation-tool/commits/main" target="_blank"
+               style="display:inline-block;background:#1a56a0;color:#fff;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none">
+              📜 コミット履歴 →
+            </a>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div><!-- #content -->
@@ -626,7 +730,7 @@ td.kosu-month-odd input,td.kosu-month-even input{background:transparent;border-c
 
 <script>
 // ===================== VERSION =====================
-const APP_VERSION = 'v1.3.0';
+const APP_VERSION = 'v1.4.0';
 const APP_RELEASE_DATE = '2025-09-01';
 
 // ===================== ADMIN MODE =====================
@@ -646,6 +750,9 @@ function promptAdminLogin() {
       el.dataset.adminLocked = '1';
     });
     document.getElementById('gh-api-save-btn').style.display = '';
+    // 管理者専用カードを表示
+    const adminCard = document.getElementById('admin-user-mgmt-card');
+    if (adminCard) adminCard.style.display = '';
     showToast('管理者モードでログインしました');
   } else if (pw !== null) {
     showToast('パスワードが違います');
@@ -662,7 +769,26 @@ function lockAdmin() {
     el.removeAttribute('data-admin-locked');
   });
   document.getElementById('gh-api-save-btn').style.display = 'none';
+  // 管理者専用カードを非表示
+  const adminCard = document.getElementById('admin-user-mgmt-card');
+  if (adminCard) adminCard.style.display = 'none';
   showToast('管理者モードからログアウトしました');
+}
+
+// 一般ユーザー: 管理者への招待申請メールを開く
+function openGhRegisterRequestMail() {
+  const to = 'ibmkevin@ibm.com'; // ← 管理者メールアドレス（必要に応じて変更）
+  const subject = encodeURIComponent('[見積もりツール] GitHub アカウント登録申請');
+  const body = encodeURIComponent(
+    '管理者様\n\n' +
+    '見積もり作成ツールの GitHub リポジトリへの参加を申請します。\n\n' +
+    '【申請者情報】\n' +
+    '氏名: （ここに氏名を記入）\n' +
+    '部署: （ここに部署を記入）\n' +
+    'GitHub ユーザー名: （ここに GitHub ユーザー名を記入）\n\n' +
+    'ご対応よろしくお願いします。'
+  );
+  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
 }
 
 // ===================== DATA DEFINITIONS =====================
