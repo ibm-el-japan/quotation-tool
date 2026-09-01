@@ -16,9 +16,9 @@ The file lives in the Bob playground workspace:
 /Users/kevinshim/.bob/playground/quotation-tool.html
 ```
 
-It is managed in the team GitHub repository:
+Team GitHub repository:
 
-- **チーム共有リポジトリ（正式）:** https://github.com/ibm-el-japan/quotation-tool (Public)
+- **チーム共有リポジトリ:** https://github.com/ibm-el-japan/quotation-tool (Public)
 - **Branch:** `main`
 - **GitHub Organization:** `ibm-el-japan`
 
@@ -42,7 +42,8 @@ It is managed in the team GitHub repository:
 | Release Version | **v1.4.0** |
 | Release Date | 2025-09-01 |
 | File | `quotation-tool.html` (~2500 lines) |
-| Save format version | 4 (includes `prevState` for diff tracking; `kosuTrips`/`kosuNights` removed) |
+| Portal (`index.html`) | v1.4.0（2025-09-01 更新済み） |
+| Save format version | 4 (`prevState` for diff tracking; `kosuTrips`/`kosuNights` removed) |
 
 ### Key features in v1.4.0
 
@@ -70,21 +71,34 @@ It is managed in the team GitHub repository:
   - **管理者専用**: 管理者モードでのみ表示される「🔑【管理者専用】ユーザー登録・権限管理」カード
     - 一般ユーザー（Write権限）の登録手順
     - 管理者（Admin権限）の登録手順 + パスワード別途伝達の注意喚起
-    - 権限一覧表（GitHub ロール × ツール内モード対応）
+    - 権限一覧表（GitHub ロール 3列: ロール・権限範囲・用途）※ツール内モード列は削除済み
     - コラボレーター管理・コミット履歴への直リンク
 
 - **管理者モード（🔑ボタン）**
   - ヘッダー右上の 🔑 ボタン → パスワード入力
-  - ログイン時: 管理者バー表示 + 管理者専用カード表示
+  - ログイン時: 管理者バー表示 + 管理者専用カード表示（バージョン情報タブ）
   - ログアウト時: 管理者バー非表示 + 管理者専用カード非表示
-  - 管理者のみ操作可能: チェックシート項目の追加・削除・フォーマット変更
+  - 管理者のみ操作可能: チェックシート項目の追加・削除・フォーマット変更、GitHub API保存ボタン
 
 - **全ユーザーが編集可能**（v1.4.0 以降）
   - Labor単価・Contingency・GP — フィールドに制限なし
   - 基本情報・工数・交通費等すべて
 
+- バージョン情報タブから「対応ベース CostPlanSheet2026.xlsm」行を削除済み
+
 - 保存/読み込み機能（ローカル保存も引き続き利用可）
 - お客様提出用出力・印刷機能
+
+### Portal (index.html) — v1.4.0 更新内容
+
+- バージョンバッジを v1.4.0 に更新
+- 利用フローを6ステップに更新（差分確認ステップを追加）
+- 差分表示機能の説明を緑色ボックスで追記
+- 権限カードを「一般ユーザーのみ」に変更（管理者モード説明を削除）
+- Labor単価・Contingency・GP が一般ユーザーでも編集可と明記
+- ユーザー登録申請はツール内バージョン情報タブへ誘導
+- クイックリンクをスリム化（WORK_LOG 削除、4項目に整理）
+- フッターを「IBM EL Japan」に変更
 
 ---
 
@@ -105,10 +119,8 @@ It is managed in the team GitHub repository:
 
 ## Repository Structure
 
-### チーム共有リポジトリ: ibm-el-japan/quotation-tool
-
 ```
-quotation-tool/                  ← https://github.com/ibm-el-japan/quotation-tool
+ibm-el-japan/quotation-tool  (main branch)
 ├── quotation-tool.html          ← チーム向け最新版テンプレート (v1.4.0)
 ├── releases/
 │   ├── quotation-tool_v1.4.0.html
@@ -121,8 +133,9 @@ quotation-tool/                  ← https://github.com/ibm-el-japan/quotation-t
 │   └── quotation-tool-skill.md  ← このスキルの GitHub バックアップ（PAT を除いた版）
 ├── CHANGELOG.md
 └── README.md
-[gh-pages branch]
-├── index.html                   ← チームポータル
+
+ibm-el-japan/quotation-tool  (gh-pages branch)
+├── index.html                   ← チームポータル (v1.4.0 更新済み)
 └── quotation-tool.html          ← Pages配信用 (v1.4.0)
 ```
 
@@ -132,9 +145,9 @@ quotation-tool/                  ← https://github.com/ibm-el-japan/quotation-t
 
 ### Two GitHub accounts involved
 
-| Account | Role | Repos |
+| Account | Role | Access |
 |---|---|---|
-| `ibmkevin` | IBM user / org owner | `ibmkevin/playground`, `ibm-el-japan` org owner |
+| `ibmkevin` | IBM user / org owner | `ibm-el-japan` org owner |
 | `kevinshim-space` | Current PAT auth user | Can push to `ibm-el-japan/quotation-tool` ✅ |
 
 ### Current PAT
@@ -179,8 +192,9 @@ quotation-tool/                  ← https://github.com/ibm-el-japan/quotation-t
    - バージョン情報タブ内の Release Version テーブル行 + 変更履歴テーブルに新行追加
 3. スナップショット作成: `cp quotation-tool.html releases/quotation-tool_vX.Y.Z.html`
 4. `CHANGELOG.md` に追記（リリースファイル一覧テーブルも更新）
-5. Python urllib スクリプトで `main` と `gh-pages` の両ブランチに push
-6. SKILL.md を更新して GitHub に push（PAT 値は除去してから）
+5. `index.html`（ポータル）のバージョンバッジ・フロー説明も必要に応じて更新
+6. Python urllib スクリプトで `main` と `gh-pages` の両ブランチに push
+7. SKILL.md を更新して GitHub に push（PAT 値は除去してから）
 
 ### Push パターン（Python urllib — Bob から実行）
 
@@ -224,6 +238,7 @@ def push_file(gh_path, local_path, message, branch="main"):
 ```
 
 ### バージョニングポリシー
+
 | 種別 | 変化 |
 |---|---|
 | フォーマット変更・機能追加 | マイナー +1 (例: v1.3.0 → v1.4.0) |
@@ -234,14 +249,17 @@ def push_file(gh_path, local_path, message, branch="main"):
 
 ## Discoveries / Design Decisions
 
-- **Save format v4**: `prevState` (1-level deep, nested `prevState` stripped) embedded in saved HTML — used by next open to compute diff. `kosuTrips`/`kosuNights` removed.
-- **Diff flow**: `buildDiffHtml(prev, curr)` computes per-sheet diffs; `showDiffModal(prev, curr, fileName)` renders the modal. Called from `loadProject()` and `execGhLoad()`. Both functions now update `window.__SAVED_STATE__ = state` after restore so subsequent saves correctly capture the loaded file as the prevState baseline.
-- **admin-lock removed from HTML fields**: `labor-rate`, `contingency`, `gp` fields have no restrictions — all users can edit. Startup code strips residual `admin-lock` class from old saved files for backward compatibility.
-- **Admin mode remaining function**: Only controls visibility of format-editing UI (checklist item add/delete) and the admin-user-mgmt-card. Does NOT restrict any calculation fields.
-- **User registration split**: General users self-register via the guide in バージョン情報 tab; admin registration is only visible after admin password login (yellow-bordered card, `id="admin-user-mgmt-card"`, `display:none` by default).
-- **Registration request mail**: `openGhRegisterRequestMail()` function opens a mailto: link with pre-filled subject and body. Admin email address is the `to` variable inside that function — update as needed.
+- **Save format v4**: `prevState` (1-level deep, nested `prevState` stripped on save) embedded in saved HTML. Used by next open to compute diff. `kosuTrips`/`kosuNights` removed.
+- **Diff flow**: `buildDiffHtml(prev, curr)` computes per-sheet diffs; `showDiffModal(prev, curr, fileName)` renders the modal. Called from `loadProject()` and `execGhLoad()`. Both functions set `window.__SAVED_STATE__ = state` after restore so subsequent saves correctly capture the loaded file as the prevState baseline.
+- **admin-lock removed from HTML fields**: `labor-rate`, `contingency`, `gp` fields have no restrictions — all users can edit freely since v1.4.0. Startup code strips residual `admin-lock` class from old saved files for backward compatibility.
+- **Admin mode remaining function**: Controls visibility of format-editing UI (checklist item add/delete), the admin-user-mgmt-card, and the API save button. Does NOT restrict any calculation fields.
+- **User registration split**: General users follow the 4-step guide in バージョン情報 tab (self-service). Admin registration is only visible after admin password login — yellow-bordered card (`id="admin-user-mgmt-card"`, `display:none` by default, shown/hidden by `promptAdminLogin()`/`lockAdmin()`).
+- **Registration request mail**: `openGhRegisterRequestMail()` opens a mailto: link with pre-filled subject and body. Admin email `to` variable — update `ibmkevin@ibm.com` to actual address.
+- **Permission table in admin card**: 3 columns only (GitHub ロール / 権限範囲 / 用途). "ツール内モード" column removed.
+- **バージョン情報タブ**: "対応ベース CostPlanSheet2026.xlsm" row removed from release info table.
+- **Portal (index.html)**: Fully updated to v1.4.0. Admin mode section removed from portal. General users only.
 - **UTF-8 decode**: `ghGetFileContent` uses `TextDecoder('utf-8')` — fixes Japanese garbling from base64 `atob()`.
-- **raw.githubusercontent.com caches aggressively** — always verify at GitHub Pages URL, not raw URL.
+- **raw.githubusercontent.com caches aggressively** — always verify at GitHub Pages URL, not raw URL. Use Cmd+Shift+R to hard-refresh.
 - **IBM Vault Radar**: Blocks commits containing raw PAT values. Always redact before pushing SKILL.md or any doc to GitHub.
 
 ---
@@ -249,8 +267,7 @@ def push_file(gh_path, local_path, message, branch="main"):
 ## Known Issues / Follow-up Items
 
 - `ibmkevin/playground` へのプッシュは現在不可（古いPATが失効）。新しい `repo` スコープ付きPATが必要。
-- Portal `index.html` (gh-pages) still shows v1.2.0 badge — update if needed.
-- `openGhRegisterRequestMail()` の `to` 変数のメールアドレスは現在 `ibmkevin@ibm.com` — 実際の管理者アドレスに変更すること。
+- `openGhRegisterRequestMail()` の `to` 変数のメールアドレスを実際の管理者アドレスに変更すること（現在 `ibmkevin@ibm.com`）。
 - Customer data in `work/` must not contain real customer info (repo is public).
 
 ---
@@ -260,7 +277,7 @@ def push_file(gh_path, local_path, message, branch="main"):
 1. Open Bob in the playground workspace (`/Users/kevinshim/.bob/playground`).
 2. Activate this skill: ask about the quotation tool or mention `quotation-tool.html`.
 3. Read `quotation-tool.html` for current state if needed.
-4. Push changes using the Python urllib script above with PAT from `~/.bob/settings/mcp.json`.
+4. Push changes using the Python urllib `push_file()` pattern above with PAT from `~/.bob/settings/mcp.json`.
 
 ---
 
@@ -271,27 +288,31 @@ def push_file(gh_path, local_path, message, branch="main"):
 ~/.bob/skills/quotation-tool/SKILL.md
 ```
 
-**GitHub backup** (PAT-redacted copy — for review and editing):
+**GitHub backup** (PAT-redacted copy — for review and editing in browser):
 ```
 https://github.com/ibm-el-japan/quotation-tool/blob/main/docs/quotation-tool-skill.md
 ```
 
-**To update the GitHub backup after editing the live skill:**
+**To push an updated SKILL.md to GitHub** (run in Bob):
 ```python
-# In Bob, run this Python snippet (replace PAT):
 import urllib.request, json, base64
 
-# Redact PAT before writing to disk
+PAT = "<token from ~/.bob/settings/mcp.json>"
+
 with open('/Users/kevinshim/.bob/skills/quotation-tool/SKILL.md') as f:
     content = f.read()
-content = content.replace('<actual PAT value>', '<PAT — see ~/.bob/settings/mcp.json>')
+# Redact PAT value before committing
+content = content.replace(PAT, '<PAT — see ~/.bob/settings/mcp.json>')
 
 with open('/Users/kevinshim/.bob/playground/docs/quotation-tool-skill.md', 'w') as f:
     f.write(content)
 
-# Then push docs/quotation-tool-skill.md via the urllib push_file() function above
+# Then push using push_file() above:
+# push_file("docs/quotation-tool-skill.md",
+#           "/Users/kevinshim/.bob/playground/docs/quotation-tool-skill.md",
+#           "docs: update SKILL.md", branch="main")
 ```
 
-**To edit the skill on GitHub and pull it back to Bob:**
-1. Edit `docs/quotation-tool-skill.md` on GitHub
-2. Copy content back to `~/.bob/skills/quotation-tool/SKILL.md` (add PAT value back if needed)
+**To edit on GitHub and pull back to Bob:**
+1. Edit [`docs/quotation-tool-skill.md`](https://github.com/ibm-el-japan/quotation-tool/blob/main/docs/quotation-tool-skill.md) on GitHub
+2. Ask Bob: "SKILL.md を GitHub の最新版に更新して" — Bob will download and overwrite the live skill file
